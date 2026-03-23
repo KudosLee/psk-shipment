@@ -1,48 +1,27 @@
 ﻿<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>출하 현황 조회</title><style>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background:#f3f5f8;color:#1f2937}
-.app{max-width:1600px;margin:0 auto;min-height:100vh;background:#f3f5f8}
+.app{max-width:760px;margin:0 auto;min-height:100vh;background:#f3f5f8}
 .header{position:sticky;top:0;z-index:10;background:rgba(243,245,248,.96);backdrop-filter:blur(8px);padding:14px 14px 10px;border-bottom:1px solid #e5e7eb}
 .title{font-size:20px;font-weight:800;margin:0 0 4px}
 .subtitle{margin:0;font-size:13px;color:#6b7280}
-.summary{display:none}
-.summary-card{background:#fff;border-radius:14px;padding:10px 10px;box-shadow:0 4px 14px rgba(15,23,42,.06);text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center}
+.summary{display:grid;gap:8px;padding:12px 14px 0}
+.summary-card{background:#fff;border-radius:14px;padding:12px 10px;box-shadow:0 4px 14px rgba(15,23,42,.06);text-align:center}
 .summary-label{font-size:11px;color:#6b7280;margin-bottom:6px}
 .summary-value{font-size:20px;font-weight:800}
 .controls{padding:12px 14px;display:grid;gap:10px}
-.top-layout{display:grid;grid-template-columns:minmax(320px,1fr) minmax(420px,560px);gap:24px;align-items:start}
-.top-left-area{display:grid;gap:10px;justify-items:start;align-content:start}
-.top-right-area{display:grid;gap:10px;justify-items:end;align-content:start}
-.summary-inline{width:220px;min-width:220px}
-.search-wrap{display:flex;justify-content:end;width:100%}
-.search{width:460px;max-width:100%;border:1px solid #d1d5db;border-radius:14px;padding:13px 14px;font-size:15px;background:#fff}
-.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;flex-wrap:wrap}
+.search{width:100%;border:1px solid #d1d5db;border-radius:14px;padding:13px 14px;font-size:15px;background:#fff}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
 .tab{border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:999px;padding:10px 14px;font-size:14px;font-weight:700;white-space:nowrap;cursor:pointer;flex:0 0 auto}
 .tab.active{background:#111827;color:#fff;border-color:#111827}
-.filter-toggle-row{display:flex;justify-content:flex-start}
-.filter-toggle-btn{border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;cursor:pointer}
-.advanced-filters{display:grid;gap:10px}
-.filter-block{display:grid;gap:6px}
-.filter-block-title{font-size:12px;font-weight:800;color:#6b7280;padding:0 2px}
-.date-action-row{display:flex;align-items:center;justify-content:end;gap:10px;flex-wrap:wrap;width:100%}
-.date-range{display:flex;align-items:center;gap:8px;flex:1;min-width:280px}
-.date-range.compact{flex:0 1 460px;min-width:0}
-.date-input{border:1px solid #d1d5db;border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:#374151;flex:1;min-width:0}
-.date-sep{color:#9ca3af;font-weight:700;flex:0 0 auto}
-.date-reset,.copy-mail-btn{border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
-.copy-mail-btn{background:#111827;color:#fff;border-color:#111827}
-.copy-mail-btn:disabled{opacity:.55;cursor:default}
-.hidden{display:none !important}
-.empty{background:#fff;border-radius:16px;padding:32px 18px;text-align:center;color:#6b7280;box-shadow:0 4px 14px rgba(15,23,42,.06)}
-.list,.report{padding:0 14px 18px}
-.report{display:grid;gap:16px}
+.list{padding:0 14px 18px}
+.date-divider{font-size:16px;font-weight:800;color:#374151;padding:10px 2px 6px}
 .item{background:#fff;border-radius:16px;margin-bottom:10px;box-shadow:0 4px 14px rgba(15,23,42,.06);overflow:hidden;border:1px solid #eef2f7}
 .item-head{width:100%;border:0;background:#fff;padding:14px;text-align:left;cursor:pointer}
 .top-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .badge-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .corp-badge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800}
-.corp-psk{background:#dbeafe;color:#1d4ed8}
-.corp-holdings{background:#fef3c7;color:#b45309}
+.corp-psk{background:#dbeafe;color:#1d4ed8}.corp-holdings{background:#fef3c7;color:#b45309}
 .mode-badge{display:inline-block;background:#ede9fe;color:#6d28d9;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800}
 .vendor-badge{display:inline-block;background:#f0fdf4;color:#15803d;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800}
 .summary-line{display:flex;align-items:center;gap:10px;min-width:0;flex:1;flex-wrap:wrap}
@@ -53,48 +32,40 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'No
 .meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2px}
 .pill{background:#f3f4f6;color:#374151;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}
 .arrow{font-size:18px;color:#9ca3af;transition:transform .2s ease;flex:0 0 auto}
-.summary-main{min-width:0;flex:1}
-.summary-main *{word-break:break-word}
+.summary-main{min-width:0;flex:1}.summary-main *{word-break:break-word}
 .item.open .arrow{transform:rotate(180deg)}
 .detail{display:none;border-top:1px solid #eef2f7;background:#fafbfc;padding:12px 14px 14px}
 .item.open .detail{display:block}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
-.field{min-width:0}
-.field-label{font-size:11px;color:#6b7280;margin-bottom:3px;font-weight:700}
+.field{min-width:0}.field-label{font-size:11px;color:#6b7280;margin-bottom:3px;font-weight:700}
 .field-value{font-size:13px;color:#111827;font-weight:700;word-break:break-word;line-height:1.4}
+.empty{background:#fff;border-radius:16px;padding:32px 18px;text-align:center;color:#6b7280;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+.date-range{display:flex;align-items:center;gap:8px}
+.date-input{border:1px solid #d1d5db;border-radius:10px;padding:9px 10px;font-size:14px;background:#fff;color:#374151;flex:1;min-width:0}
+.date-sep{color:#9ca3af;font-weight:700;flex:0 0 auto}
+.date-reset{border:1px solid #d1d5db;background:#fff;color:#6b7280;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;flex:0 0 auto;white-space:nowrap}
+.hidden{display:none !important}
 .calendar-toolbar{display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px;gap:10px}
 .calendar-title{font-size:18px;font-weight:800;color:#111827}
 .nav-btn{border:1px solid #d1d5db;background:#fff;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:800;cursor:pointer}
-.calendar-wrap{padding:0 14px 18px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(360px,.9fr);gap:16px;align-items:start}
+.calendar-wrap{padding:0 12px 18px;display:grid;gap:12px}
 .calendar{display:grid;gap:12px}
 .cal-week-block{display:block}
-.cal-week-grid{display:grid;gap:8px;max-width:none;width:100%;margin:0}
-.cal-weekday{background:#e5e7eb;color:#374151;border-radius:10px;padding:10px 4px;text-align:center;font-size:12px;font-weight:800}
-.cal-cell{background:#fff;border:1px solid #e5e7eb;border-radius:14px;min-height:108px;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:pointer;box-shadow:0 4px 14px rgba(15,23,42,.04)}
+.cal-week-grid{display:grid;gap:6px;max-width:620px;width:100%;margin:0 auto}
+.cal-weekday{background:#e5e7eb;color:#374151;border-radius:10px;padding:8px 4px;text-align:center;font-size:11px;font-weight:800}
+.cal-cell{background:#fff;border:1px solid #e5e7eb;border-radius:14px;min-height:78px;padding:6px;display:flex;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 4px 14px rgba(15,23,42,.04)}
 .cal-cell.empty{background:transparent;border:0;box-shadow:none;cursor:default}
 .cal-cell.selected{border:2px solid #111827}
-.cal-day{font-size:13px;font-weight:800;color:#111827}
-.cal-count{font-size:12px;font-weight:700;color:#2563eb}
+.cal-day{font-size:12px;font-weight:800;color:#111827}
+.cal-count{font-size:11px;font-weight:700;color:#2563eb}
 .cal-items{display:flex;flex-direction:column;gap:4px;min-width:0}
-.cal-item{background:#f3f4f6;border-radius:8px;padding:4px 6px;font-size:11px;font-weight:700;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.calendar-day-panel{background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(15,23,42,.06);border:1px solid #eef2f7;position:sticky;top:88px;max-height:calc(100vh - 110px);overflow:auto}
+.cal-item{background:#f3f4f6;border-radius:8px;padding:4px 5px;font-size:10px;font-weight:700;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-day-panel{background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px rgba(15,23,42,.06);border:1px solid #eef2f7}
 .day-panel-title{font-size:15px;font-weight:800;margin-bottom:10px;color:#111827}
 .day-list{display:grid;gap:8px}
 .day-card{border:1px solid #e5e7eb;background:#fafafa;border-radius:12px;padding:10px;cursor:pointer}
 .day-card-title{font-size:13px;font-weight:800;color:#111827;margin-bottom:4px}
 .day-card-sub{font-size:12px;color:#6b7280;font-weight:700}
-.report-corp{display:grid;gap:10px}
-.report-corp-title{font-size:18px;font-weight:900;color:#111827;padding:4px 2px}
-.report-block{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 4px 14px rgba(15,23,42,.05)}
-.report-block-title{padding:10px 12px;font-size:14px;font-weight:900;background:#f8fafc;border-bottom:1px solid #e5e7eb}
-.report-table-wrap{overflow:auto}
-.report-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px;background:#fff}
-.report-table th,.report-table td{border:1px solid #d1d5db;padding:6px 8px;text-align:left;vertical-align:top;white-space:nowrap}
-.report-table th{background:#5b8fd1;color:#fff;font-weight:800;position:sticky;top:0}
-.report-table td.col-date,.report-table td.col-wo{color:#111827;font-weight:400}
-.report-table td.col-date.merged{background:#f8fbff;font-weight:700;vertical-align:middle}
-.report-table td.col-export.transfer{background:#fff59d;font-weight:800}
-.report-table td.col-inv.has-inv{background:#92d050;font-weight:800}
 .modal{position:fixed;inset:0;z-index:1000}
 .modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45)}
 .modal-content{position:relative;max-width:760px;margin:5vh auto;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:90vh;display:flex;flex-direction:column}
@@ -102,71 +73,20 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'No
 .modal-title{font-size:16px;font-weight:900;color:#111827}
 .modal-close{border:0;background:#fff;font-size:26px;line-height:1;cursor:pointer;color:#6b7280}
 .modal-body{padding:14px 16px;overflow:auto;background:#fafbfc}
-@media(max-width:1024px){
-  .app{max-width:100%}
-  .calendar-wrap{grid-template-columns:1fr}
-  .calendar-day-panel{position:static;top:auto;max-height:none;overflow:visible}
-}
-@media(max-width:640px){
-  .app{max-width:760px}
-  .top-tools{align-items:stretch}
-  .summary-inline{flex:1 1 100%;max-width:none}
-  .search-wrap{flex:1 1 100%;min-width:0}
-  .search{width:100%}
-  .action-row{align-items:stretch}
-  .copy-mail-btn{width:100%}
-  .cal-week-grid{max-width:none}
-  .cal-cell{min-height:72px}
-  .calendar{gap:8px}
-  .modal-content{margin:0;max-width:none;height:100vh;max-height:none;border-radius:0}
-  .report-table th,.report-table td{font-size:11px;padding:5px 6px}
-}
-@media(max-width:460px){
-  .detail-grid{grid-template-columns:1fr}
-  .summary-wo,.summary-model{font-size:14px}
-  .summary-line{gap:8px}
-  .date-range{flex-wrap:wrap}
-  .cal-item{font-size:9px}
-}
+@media(max-width:640px){.cal-week-grid{max-width:none}.cal-cell{min-height:72px}.calendar{gap:8px}.modal-content{margin:0;max-width:none;height:100vh;max-height:none;border-radius:0}}
+@media(max-width:460px){.detail-grid{grid-template-columns:1fr}.summary-wo,.summary-model{font-size:14px}.summary-line{gap:8px}.date-range{flex-wrap:wrap}.cal-item{font-size:9px}}
 </style></head><body>
 <div class="app">
-<div class="header"><h1 class="title">출하 현황 조회</h1><p class="subtitle">PSK / PSK Holdings 통합 조회</p><p class="update-time">최종수정: 2026-03-23 12:56</p></div>
-<section class="summary hidden" id="summary"></section>
+<div class="header"><h1 class="title">출하 현황 조회</h1><p class="subtitle">PSK / PSK Holdings 통합 조회</p></div>
+<section class="summary" id="summary"></section>
 <section class="controls">
-  <div class="top-layout">
-    <div class="top-left-area">
-      <div class="tabs" id="viewTabs"></div>
-      <div class="tabs" id="corpTabs"></div>
-      <div class="filter-toggle-row">
-        <button id="toggleAdvancedFilters" class="filter-toggle-btn" type="button">상세 필터 열기</button>
-      </div>
-    </div>
-    <div class="top-right-area">
-      <div class="summary-inline" id="summaryInline"></div>
-      <div class="search-wrap">
-        <input id="searchInput" class="search" type="text" placeholder="W/O, 업체명, 고객사, 장비명 검색">
-      </div>
-      <div class="date-action-row">
-        <div class="date-range compact">
-          <input id="dateFrom" class="date-input" type="date"><span class="date-sep">~</span>
-          <input id="dateTo" class="date-input" type="date">
-        </div>
-        <button id="dateReset" class="date-reset">초기화</button>
-        <button id="copyMailReportBtn" class="copy-mail-btn" type="button">메일복사용 복사</button>
-      </div>
-    </div>
-  </div>
-  <div class="advanced-filters hidden" id="advancedFilters">
-    <div class="filter-block">
-      <div class="filter-block-title">유형</div>
-      <div class="tabs" id="modeTabs"></div>
-    </div>
-    <div class="filter-block">
-      <div class="filter-block-title">출발지 / 업체</div>
-      <div class="tabs" id="filterTabs"></div>
-    </div>
-  </div>
-</section>
+  <input id="searchInput" class="search" type="text" placeholder="W/O, 업체명, 고객사, 장비명 검색">
+  <div class="tabs" id="viewTabs"></div><div class="tabs" id="corpTabs"></div>
+  <div class="tabs" id="modeTabs"></div><div class="tabs" id="filterTabs"></div>
+  <div class="date-range">
+    <input id="dateFrom" class="date-input" type="date"><span class="date-sep">~</span>
+    <input id="dateTo" class="date-input" type="date"><button id="dateReset" class="date-reset">초기화</button>
+  </div></section>
 <section class="calendar-toolbar hidden" id="calendarToolbar">
   <button class="nav-btn" id="prevMonth">&lt;</button>
   <div class="calendar-title" id="calendarTitle"></div>
@@ -175,73 +95,48 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'No
   <div class="calendar" id="calendar"></div>
   <div class="calendar-day-panel" id="calendarDayPanel"></div></section>
 <section class="list" id="list"></section>
-<section class="report hidden" id="reportView"></section>
 <div class="modal hidden" id="detailModal">
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <div class="modal-content">
     <div class="modal-head"><div class="modal-title">출하 상세정보</div>
-    <button class="modal-close" id="modalClose">&#215;</button></div>
-    <div class="modal-body" id="modalBody"></div>
-  </div></div>
-</div>
+    <button class="modal-close" id="modalClose">×</button></div>
+    <div class="modal-body" id="modalBody"></div></div></div></div>
 <script>
-const data=[{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","shipDateText":"2026-03-23","loadTime":"16:00","unloadTime":"익일 오전 8시 30분","fabOut":"완료","fabOutText":"완료","packaging":"3/23 오후","packagingText":"3/23 오후","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601001","sn":"PJK36710","model":"SUPRA N","exportInfo":"출하, 내수, 청주","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-260310-1","vendorName":"","moduleText":"","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"11:30","unloadTime":"13:00","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"3/25 오전","packagingText":"3/25 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601006","sn":"PJK36716","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (이지스 / EFEM, TM, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260318-1","vendorName":"이지스","moduleText":"EFEM, TM, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"15:30","unloadTime":"16:30","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"3/25 오전","packagingText":"3/25 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601005","sn":"PJK36715","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SAM / EFEM, TM, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260318-2","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"-","unloadTime":"-","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"3/25 오전","packagingText":"3/25 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601006","sn":"PJK36716","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SENT / PM, SU, RACK, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260318-1","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"-","unloadTime":"-","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"3/25 오전","packagingText":"3/25 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601005","sn":"PJK36715","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SENT / PM, SU, RACK, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260318-2","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"청주"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"확인중","unloadTime":"확인중","fabOut":"2026-03-24","fabOutText":"2026-03-24","packaging":"3/24 오후","packagingText":"3/24 오후","sizeNotice":"","shipRequest":"","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC501014","sn":"PQK36713","model":"SUPRA XP PREFAC","exportInfo":"출하, 해상, 아일랜드 / 부산항 (변동가능)","shipMode":"해상","forwarder":"DSV","customer":"INTEL F24","manager":"강한나","inv":"PSK-260318-3","vendorName":"","moduleText":"","locationText":"아일랜드 / 부산항"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"확인중","unloadTime":"확인중","fabOut":"2026-03-24","fabOutText":"2026-03-24","packaging":"3/24 오후","packagingText":"3/24 오후","sizeNotice":"","shipRequest":"","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC412014","sn":"PQK36712","model":"SUPRA XP PREFAC","exportInfo":"출하, 해상, 아일랜드 / 부산항 (변동가능)","shipMode":"해상","forwarder":"DSV","customer":"INTEL F24","manager":"강한나","inv":"PSK-260318-3","vendorName":"","moduleText":"","locationText":"아일랜드 / 부산항"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"확인중","unloadTime":"확인중","fabOut":"완료","fabOutText":"완료","packaging":"3/24 오전","packagingText":"3/24 오전","sizeNotice":"","shipRequest":"","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC601021","sn":"PQK36715","model":"SUPRA XP PREFAC","exportInfo":"출하, 해상, 아일랜드 / 부산항 (변동가능)","shipMode":"해상","forwarder":"DSV","customer":"INTEL F24","manager":"강한나","inv":"PSK-260318-4","vendorName":"","moduleText":"","locationText":"아일랜드 / 부산항"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"16:00","unloadTime":"익일 오전 8시","fabOut":"완료","fabOutText":"완료","packaging":"3/18 오전","packagingText":"3/18 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601002","sn":"PJK36711","model":"SUPRA N","exportInfo":"출하, 내수, 청주","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260317-1","vendorName":"","moduleText":"","locationText":"청주"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-26","shipDateRaw":"2026-03-26","shipDateText":"2026-03-26","loadTime":"11:30","unloadTime":"14:00","fabOut":"2026-03-26","fabOutText":"2026-03-26","packaging":"3/30 오후","packagingText":"3/30 오후","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512044","sn":"PNK36702","model":"INTEGER Plus","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"최승필","inv":"PSK-260318-2","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"이관","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"14:00","unloadTime":"16:30","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601007","sn":"PJK36717","model":"SUPRA N","exportInfo":"이관, 내수, 청주","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260319-1","vendorName":"","moduleText":"","locationText":"청주"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"15:00","unloadTime":"월요일 오전 8시 30분","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"3/25 오전","packagingText":"3/25 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601005","sn":"PJK36715","model":"SUPRA N","exportInfo":"출하, 내수, 청주","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260318-2","vendorName":"","moduleText":"","locationText":"청주"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"10:00","unloadTime":"14:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"3/29 오후","packagingText":"3/29 오후","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601009","sn":"PJK36714","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P1D","manager":"김윤수","inv":"PSK-260310-3","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"14:00","unloadTime":"17:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"3/30 오전","packagingText":"3/30 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512016","sn":"PJK35812","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SAM / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-1","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"14:00","unloadTime":"17:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"3/30 오전","packagingText":"3/30 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512016","sn":"PJK35812","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (ASEM / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-1","vendorName":"ASEM","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"16:00","unloadTime":"익일 오전 8시 30분","fabOut":"완료","fabOutText":"완료","packaging":"3/12 오전","packagingText":"3/12 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512042","sn":"PJK36705","model":"SUPRA N","exportInfo":"출하, 내수, 이천","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M16","manager":"김영우","inv":"PSK-260310-2","vendorName":"","moduleText":"","locationText":"이천"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"3/30 오전","packagingText":"3/30 오전","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601010","sn":"PJK36713","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P1F","manager":"김윤수","inv":"PSK-260310-5","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","shipDateText":"2026-03-30","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-03-30","fabOutText":"2026-03-30","packaging":"3/30 오후","packagingText":"3/30 오후","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512045","sn":"PNK36702","model":"INTEGER Plus","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"최승필","inv":"PSK-260318-1","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","shipDateText":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","fabOutText":"2026-04-02","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601015","sn":"PJK36721","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (이지스 / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-2","vendorName":"이지스","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","shipDateText":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","fabOutText":"2026-04-02","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601015","sn":"PJK36721","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (ASEM / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-2","vendorName":"ASEM","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","shipDateText":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","fabOutText":"2026-04-02","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601014","sn":"PJK36720","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SAM / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-3","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","shipDateText":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","fabOutText":"2026-04-02","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601014","sn":"PJK36720","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SENT / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-3","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-04-29","shipDateRaw":"2026-04-29","shipDateText":"2026-04-29","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-29","fabOutText":"2026-04-29","packaging":"","packagingText":"","sizeNotice":"","shipRequest":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC602001","sn":"PJK36733","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-1","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","shipDateText":"2026-03-23","loadTime":"11:00","unloadTime":"-","fabOut":"2026-03-19","fabOutText":"2026-03-19","packaging":"3/19 오후","packagingText":"3/19 오후","sizeNotice":"2026-03-17","shipRequest":"2026-03-16","customs":"2026-03-19","terms":"EXW","pskDelivery":"배차불필요","wo":"HC512512","sn":"KGK40502","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만 / 쇼링작업 필요","shipMode":"해상","forwarder":"AWOT","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"XI-260323-2","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","shipDateText":"2026-03-23","loadTime":"11:00","unloadTime":"-","fabOut":"2026-03-19","fabOutText":"2026-03-19","packaging":"3/19 오후","packagingText":"3/19 오후","sizeNotice":"2026-03-17","shipRequest":"2026-03-16","customs":"2026-03-19","terms":"EXW","pskDelivery":"배차불필요","wo":"HC512511","sn":"KGK40501","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만 / 쇼링작업 필요","shipMode":"해상","forwarder":"AWOT","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"XI-260323-1","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","shipDateText":"2026-03-23","loadTime":"14:00","unloadTime":"17:00","fabOut":"2026-03-20","fabOutText":"2026-03-20","packaging":"3/23 오전","packagingText":"3/23 오전","sizeNotice":"2026-03-18","shipRequest":"2026-03-18","customs":"2026-03-19","terms":"FCA","pskDelivery":"40FT HQ","wo":"HC512530","sn":"KEK40501","model":"ECOLITE II 400","exportInfo":"출하, 해상, 중국 / 인천항","shipMode":"해상","forwarder":"AGL","customer":"SJ Semi/JIANGIN(CN)","manager":"정종호","inv":"PSKH-GB-260323-01","vendorName":"","moduleText":"","locationText":"중국"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","shipDateText":"2026-03-25","loadTime":"11:30","unloadTime":"-","fabOut":"2026-02-27","fabOutText":"2026-02-27","packaging":"2/27 오전 9시","packagingText":"2/27 오전 9시","sizeNotice":"2026-02-25","shipRequest":"2026-03-16","customs":"X","terms":"EXW","pskDelivery":"배차불필요","wo":"HC511515","sn":"KGK39590","model":"GENEVA STP300 xp","exportInfo":"출하, 항공, 대만","shipMode":"항공","forwarder":"KWE","customer":"TSMC/AP8(TW)","manager":"윤태운","inv":"","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-26","shipDateRaw":"2026-03-26","shipDateText":"2026-03-26","loadTime":"09:00","unloadTime":"17:00","fabOut":"2026-03-25","fabOutText":"2026-03-25","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-18","customs":"X","terms":"FCA","pskDelivery":"40FT HQ","wo":"HC509503","sn":"KQK40501","model":"ECOLITE II PF","exportInfo":"출하, 해상, 대만 / 부산항","shipMode":"해상","forwarder":"디메르코","customer":"ASE/K18(TW)","manager":"","inv":"","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"11:00","unloadTime":"13:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-19","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512531","sn":"KGK40506","model":"GENEVA STP300 xp","exportInfo":"이관, 해상, 대만 / 분리출하 (이지스/ EFEM)","shipMode":"이관","forwarder":"해우GLS","customer":"SPIL/Changhua(TW)","manager":"","inv":"","vendorName":"이지스","moduleText":"EFEM","locationText":"대만 / 분리출하"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"11:00","unloadTime":"13:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-19","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512531","sn":"KGK40506","model":"GENEVA STP300 xp","exportInfo":"이관, 해상, 대만 / 분리출하 (나우 / PM, ACC)","shipMode":"이관","forwarder":"해우GLS","customer":"SPIL/Changhua(TW)","manager":"","inv":"","vendorName":"나우테크","moduleText":"PM, ACC","locationText":"대만 / 분리출하"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"11:30","unloadTime":"14:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-23","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512533","sn":"KGK40510","model":"GENEVA STP300 xp","exportInfo":"이관, 해상, 대만 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"ASE/K18(TW)","manager":"윤태운","inv":"","vendorName":"나우테크","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","shipDateText":"2026-03-27","loadTime":"13:00","unloadTime":"17:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-19","customs":"X","terms":"FCA","pskDelivery":"40FT HQ","wo":"HC512531","sn":"KGK40506","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만 / 인천항","shipMode":"해상","forwarder":"AWOT","customer":"SPIL/Changhua(TW)","manager":"","inv":"","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-31","shipDateRaw":"2026-03-31","shipDateText":"2026-03-31","loadTime":"13:00","unloadTime":"16:00","fabOut":"2026-03-27","fabOutText":"2026-03-27","packaging":"","packagingText":"","sizeNotice":"X","shipRequest":"2026-03-23","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"HC512533","sn":"KGK40510","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만","shipMode":"해상","forwarder":"DSV","customer":"ASE/K18(TW)","manager":"윤태운","inv":"","vendorName":"","moduleText":"","locationText":"대만"}];
+const data=[{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"11:00","unloadTime":"11:45","fabOut":"완료","packaging":"3/18 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601001","sn":"PJK36710","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SAM / EFEM, TM, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-260310-1","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"11:00","unloadTime":"11:45","fabOut":"완료","packaging":"3/18 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601002","sn":"PJK36711","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SAM / EFEM, TM, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260317-1","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"13:00","unloadTime":"-","fabOut":"완료","packaging":"3/18 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601001","sn":"PJK36710","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SENT / PM, SU, RACK, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-260310-1","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"13:00","unloadTime":"-","fabOut":"완료","packaging":"3/18 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601002","sn":"PJK36711","model":"SUPRA N","exportInfo":"이관, 내수, 청주 (SENT / PM, SU, RACK, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-LTS-260317-1","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"청주"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"15:00","unloadTime":"익일 오전 9시","fabOut":"완료","packaging":"3/18 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512038","sn":"PJK36708","model":"SUPRA N","exportInfo":"이관, 내수, 평택 (이지스 / EFEM, TM, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-2","vendorName":"이지스","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"15:00","unloadTime":"익일 오전 9시","fabOut":"완료","packaging":"3/18 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512038","sn":"PJK36708","model":"SUPRA N","exportInfo":"이관, 내수, 평택 (ASEM / PM, SU, RACK, ACC)","shipMode":"이관","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-2","vendorName":"ASEM","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"13:00","unloadTime":"15:00","fabOut":"2026-03-19","packaging":"3/18 오후","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC512028","sn":"PJK36706","model":"SUPRA N","exportInfo":"출하, 항공, 중국","shipMode":"항공","forwarder":"Sun&Moon","customer":"JIDIAN","manager":"우완기","inv":"PSK-260316-2","vendorName":"","moduleText":"","locationText":"중국"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"13:00","unloadTime":"15:00","fabOut":"2026-03-19","packaging":"3/19 오전","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC512027","sn":"PJK36704","model":"SUPRA N","exportInfo":"출하, 항공, 중국","shipMode":"항공","forwarder":"Morrison","customer":"CXMT","manager":"우완기","inv":"PSK-260316-1","vendorName":"","moduleText":"","locationText":"중국"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-20","shipDateRaw":"2026-03-20","loadTime":"14:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/20 오전","customs":"X","terms":"FCA","pskDelivery":"무진동","wo":"WC512041","sn":"PGK36704","model":"TIGMA Vplus","exportInfo":"출하, 항공, 일본","shipMode":"항공","forwarder":"일본통운","customer":"MICRON F15","manager":"신재웅","inv":"PSK-260306-1","vendorName":"","moduleText":"","locationText":"일본"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-20","shipDateRaw":"2026-03-20","loadTime":"15:00","unloadTime":"16:30","fabOut":"완료","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512038","sn":"PJK36708","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-2","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","loadTime":"16:00","unloadTime":"익일 오전 8시 30분","fabOut":"완료","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601001","sn":"PJK36710","model":"SUPRA N","exportInfo":"출하, 내수, 청주","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M14","manager":"김영우","inv":"PSK-260310-1","vendorName":"","moduleText":"","locationText":"청주"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-27","shipDateRaw":"2026-03-27","loadTime":"16:00","unloadTime":"익일 오전 8시 30분","fabOut":"2026-03-27","packaging":"3/29 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601009","sn":"PJK36714","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P1D","manager":"김윤수","inv":"PSK-260310-3","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","loadTime":"14:00","unloadTime":"17:00","fabOut":"2026-03-27","packaging":"3/30 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512016","sn":"PJK35812","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SAM / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-1","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","loadTime":"14:00","unloadTime":"17:00","fabOut":"2026-03-27","packaging":"3/30 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512016","sn":"PJK35812","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (ASEM / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4H","manager":"김윤수","inv":"PSK-260212-1","vendorName":"ASEM","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","loadTime":"16:00","unloadTime":"익일 오전 8시 30분","fabOut":"완료","packaging":"3/12 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC512042","sn":"PJK36705","model":"SUPRA N","exportInfo":"출하, 내수, 이천","shipMode":"내수","forwarder":"해우 GLS","customer":"HYNIX M16","manager":"김영우","inv":"PSK-260310-2","vendorName":"","moduleText":"","locationText":"이천"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-03-30","shipDateRaw":"2026-03-30","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-03-27","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601010","sn":"PJK36713","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P1F","manager":"김윤수","inv":"PSK-260310-5","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601015","sn":"PJK36721","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (이지스 / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-2","vendorName":"이지스","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601015","sn":"PJK36721","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (ASEM / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-2","vendorName":"ASEM","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601014","sn":"PJK36720","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SAM / EFEM, TM, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-3","vendorName":"SAM","moduleText":"EFEM, TM, ACC","locationText":"평택"},{"corp":"PSK","category":"기타","depart":"조립업체","shipType":"출하","shipDate":"2026-04-02","shipDateRaw":"2026-04-02","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-02","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC601014","sn":"PJK36720","model":"SUPRA N","exportInfo":"출하, 내수, 평택 (SENT / PM, SU, RACK, ACC)","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-3","vendorName":"SENT","moduleText":"PM, SU, RACK, ACC","locationText":"평택"},{"corp":"PSK","category":"본사(HQ)","depart":"PSK HQ","shipType":"출하","shipDate":"2026-04-29","shipDateRaw":"2026-04-29","loadTime":"16:00","unloadTime":"익일 오전 9시","fabOut":"2026-04-29","packaging":"","customs":"-","terms":"-","pskDelivery":"무진동","wo":"WC602001","sn":"PJK36733","model":"SUPRA N","exportInfo":"출하, 내수, 평택","shipMode":"내수","forwarder":"해우 GLS","customer":"SEC P4","manager":"김윤수","inv":"PSK-260317-1","vendorName":"","moduleText":"","locationText":"평택"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"11:30","unloadTime":"-","fabOut":"2026-03-10","packaging":"3/10 오후","customs":"2026-03-17","terms":"EXW","pskDelivery":"배차 불필요","wo":"HC512535","sn":"KGK40503","model":"GENEVA STP300 xp","exportInfo":"출하, 항공, 대만","shipMode":"항공","forwarder":"KWE","customer":"TSMC/AP2(TW)","manager":"윤태운","inv":"XI-260318-1","vendorName":"","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"기타","depart":"K-FAB","shipType":"출하","shipDate":"2026-03-18","shipDateRaw":"2026-03-18","loadTime":"11:00","unloadTime":"익일 오전 10시","fabOut":"2026-03-17","packaging":"3/18 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC502507","sn":"KCK39501","model":"ECOLITE II T","exportInfo":"출하, 내수, 천안 / Pump, Rack, VSP","shipMode":"내수","forwarder":"해우GLS","customer":"SEC/Cheonan 5L P-I(KR)","manager":"박석준","inv":"-","vendorName":"","moduleText":"","locationText":"천안"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"15:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/19 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512512","sn":"KGK40502","model":"GENEVA STP300 xp","exportInfo":"이관, 해상, 대만 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"","vendorName":"나우테크","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"15:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/19 오후","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512511","sn":"KGK40501","model":"GENEVA STP300 xp","exportInfo":"이관, 해상, 대만 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"","vendorName":"나우테크","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"15:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/19 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512513","sn":"","model":"HDW-48xp","exportInfo":"이관, 내수, 이천 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"SK hynix/M16(KR)","manager":"","inv":"","vendorName":"나우테크","moduleText":"","locationText":"이천"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"15:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/19 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512514","sn":"","model":"HDW-12L","exportInfo":"이관, 해상, 중국 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"SK hynix/C2F(CN)","manager":"","inv":"","vendorName":"나우테크","moduleText":"","locationText":"중국"},{"corp":"PSK Holdings","category":"기타","depart":"조립업체","shipType":"이관","shipDate":"2026-03-19","shipDateRaw":"2026-03-19","loadTime":"15:00","unloadTime":"16:30","fabOut":"2026-03-19","packaging":"3/19 오전","customs":"-","terms":"-","pskDelivery":"무진동","wo":"HC512515","sn":"","model":"HDW-12L","exportInfo":"이관, 내수, 청주 / 나우테크","shipMode":"이관","forwarder":"해우GLS","customer":"SK hynix/M15(KR)","manager":"","inv":"","vendorName":"나우테크","moduleText":"","locationText":"청주"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","loadTime":"11:00","unloadTime":"-","fabOut":"2026-03-19","packaging":"3/19 오후","customs":"X","terms":"EXW","pskDelivery":"배차불필요","wo":"HC512512","sn":"KGK40502","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만 / 나우테크","shipMode":"해상","forwarder":"AWOT","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"","vendorName":"나우테크","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-23","shipDateRaw":"2026-03-23","loadTime":"11:00","unloadTime":"-","fabOut":"2026-03-19","packaging":"3/19 오후","customs":"X","terms":"EXW","pskDelivery":"배차불필요","wo":"HC512511","sn":"KGK40501","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만 / 나우테크","shipMode":"해상","forwarder":"AWOT","customer":"SPIL/Zhongke(TW)","manager":"윤태운","inv":"","vendorName":"나우테크","moduleText":"","locationText":"대만"},{"corp":"PSK Holdings","category":"2사업장","depart":"2사업장","shipType":"출하","shipDate":"2026-03-25","shipDateRaw":"2026-03-25","loadTime":"11:30","unloadTime":"-","fabOut":"2026-02-27","packaging":"2/27 오전 9시","customs":"X","terms":"EXW","pskDelivery":"배차불필요","wo":"HC511515","sn":"KGK39590","model":"GENEVA STP300 xp","exportInfo":"출하, 해상, 대만","shipMode":"해상","forwarder":"KWE","customer":"TSMC/AP8(TW)","manager":"윤태운","inv":"","vendorName":"","moduleText":"","locationText":"대만"}];
 const now=new Date();
-const state={corp:'전체 법인',mode:'전체',filter:'전체',keyword:'',dateFrom:'',dateTo:'',view:'calendar',calendarYear:now.getFullYear(),calendarMonth:now.getMonth(),selectedDate:'',advancedOpen:false};
+const state={corp:'전체 법인',mode:'전체',filter:'전체',keyword:'',dateFrom:'',dateTo:'',view:'calendar',calendarYear:now.getFullYear(),calendarMonth:now.getMonth(),selectedDate:''};
 const $=id=>document.getElementById(id);
-const [viewTabs,corpTabs,modeTabs,filterTabs]=['viewTabs','corpTabs','modeTabs','filterTabs'].map($);
-const [listEl,summaryEl,summaryInlineEl,searchInput,dateFromEl,dateToEl,dateResetEl,copyMailReportBtn,toggleAdvancedFiltersBtn,advancedFiltersEl]=['list','summary','summaryInline','searchInput','dateFrom','dateTo','dateReset','copyMailReportBtn','toggleAdvancedFilters','advancedFilters'].map($);
-const [calToolbar,calWrap,calEl,calTitleEl,calDayPanel,reportEl]=['calendarToolbar','calendarWrap','calendar','calendarTitle','calendarDayPanel','reportView'].map($);
-const [detailModal,modalBackdrop,modalClose,modalBody]=['detailModal','modalBackdrop','modalClose','modalBody'].map($);
+const viewTabs=$('viewTabs'),corpTabs=$('corpTabs'),modeTabs=$('modeTabs'),filterTabs=$('filterTabs');
+const listEl=$('list'),summaryEl=$('summary'),searchInput=$('searchInput');
+const dateFromEl=$('dateFrom'),dateToEl=$('dateTo'),dateResetEl=$('dateReset');
+const calToolbar=$('calendarToolbar'),calWrap=$('calendarWrap'),calEl=$('calendar');
+const calTitleEl=$('calendarTitle'),calDayPanel=$('calendarDayPanel');
+const detailModal=$('detailModal'),modalBackdrop=$('modalBackdrop'),modalClose=$('modalClose'),modalBody=$('modalBody');
 const corpOptions=['전체 법인','PSK','PSK Holdings'];
 const modeOptions=['전체','내수','항공','해상','이관','기타'];
-const viewOptions=[{label:'캘린더',value:'calendar'},{label:'요약',value:'report'},{label:'상세내용',value:'list'}];
+const viewOptions=[{label:'리스트',value:'list'},{label:'캘린더',value:'calendar'}];
 const categorySet=new Set(['전체','본사(HQ)','2사업장','기타']);
-const reportCorpOrder=['PSK','PSK Holdings'];
-const reportDepartOrder=['PSK HQ','2사업장','조립업체','기타'];
 const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const badge=(cls,txt)=>`<span class="${cls}">${esc(txt)}</span>`;
 const pill=txt=>`<span class="pill">${esc(txt)}</span>`;
 const corpCls=c=>c==='PSK'?'corp-badge corp-psk':'corp-badge corp-holdings';
 const field=(label,val,full)=>`<div class="field"${full?' style="grid-column:1/-1"':''}><div class="field-label">${esc(label)}</div><div class="field-value">${esc(val||'-')}</div></div>`;
-const showVal=v=>String(v??'').trim()||'-';
-const getFilterOptions=()=>['전체','본사(HQ)','2사업장','기타',...[...new Set(data.map(d=>d.vendorName).filter(Boolean))].sort()];
-const compareDateTime=(a,b)=>{
-  const da=(a.shipDate||'9999-99-99').trim()||'9999-99-99',db=(b.shipDate||'9999-99-99').trim()||'9999-99-99';
-  if(da!==db) return da.localeCompare(db);
-  const ta=(a.loadTime||'').trim()||'99:99',tb=(b.loadTime||'').trim()||'99:99';
-  if(ta!==tb) return ta.localeCompare(tb);
-  if((a.corp||'')!==(b.corp||'')) return (a.corp||'').localeCompare(b.corp||'');
-  if((a.depart||'')!==(b.depart||'')) return (a.depart||'').localeCompare(b.depart||'');
-  return (a.wo||'').localeCompare(b.wo||'');
-};
-const compareReportDateTime=(a,b)=>{
-  const da=(a.shipDate||'9999-99-99').trim()||'9999-99-99',db=(b.shipDate||'9999-99-99').trim()||'9999-99-99';
-  if(da!==db) return da.localeCompare(db);
-  const ta=(a.loadTime||'').trim()||'99:99',tb=(b.loadTime||'').trim()||'99:99';
-  if(ta!==tb) return ta.localeCompare(tb);
-  return (a.wo||'').localeCompare(b.wo||'');
-};
-const sortByLoadTime=rows=>[...rows].sort((a,b)=>{
-  const ta=(a.loadTime||'').trim()||'99:99',tb=(b.loadTime||'').trim()||'99:99';
-  return ta!==tb?ta.localeCompare(tb):(a.corp||'')!==(b.corp||'')?(a.corp||'').localeCompare(b.corp||''):(a.depart||'').localeCompare(b.depart||'')||(a.wo||'').localeCompare(b.wo||'');
-});
-const openDetailModal=item=>{modalBody.innerHTML=renderItemDetail(item);detailModal.classList.remove('hidden');document.body.style.overflow='hidden';};
-const closeDetailModal=()=>{detailModal.classList.add('hidden');modalBody.innerHTML='';document.body.style.overflow='';};
+function getFilterOptions(){const v=new Set();data.forEach(d=>{if(d.vendorName)v.add(d.vendorName);});return['전체','본사(HQ)','2사업장','기타',...Array.from(v).sort()];}
 function filteredData(){
   const kw=state.keyword.trim().toLowerCase();
   return data.filter(item=>{
     if(state.corp!=='전체 법인'&&item.corp!==state.corp) return false;
     if(state.mode!=='전체'&&item.shipMode!==state.mode) return false;
     if(state.filter!=='전체'){
-      if(categorySet.has(state.filter)?item.category!==state.filter:item.vendorName!==state.filter) return false;
+      if(categorySet.has(state.filter)){if(item.category!==state.filter) return false;}
+      else if(item.vendorName!==state.filter) return false;
     }
     const d=item.shipDate;
     if(state.dateFrom&&d&&d<state.dateFrom) return false;
     if(state.dateTo&&d&&d>state.dateTo) return false;
-    if(kw&&![item.wo,item.vendorName,item.customer,item.model,item.sn,item.inv,item.exportInfo,item.shipType,item.shipMode,item.depart].join(' ').toLowerCase().includes(kw)) return false;
+    if(kw){const t=[item.wo,item.vendorName,item.customer,item.model,item.sn,item.inv,item.exportInfo,item.shipType,item.shipMode].join(' ').toLowerCase();if(!t.includes(kw)) return false;}
     return true;
-  }).sort(compareDateTime);
+  }).sort((a,b)=>a.shipDate===b.shipDate?(a.corp===b.corp?a.wo.localeCompare(b.wo):a.corp.localeCompare(b.corp)):a.shipDate.localeCompare(b.shipDate));
 }
 function renderTabs(el,options,key,onChange){
   el.innerHTML=options.map(v=>`<button class="tab ${state[key]===v?'active':''}" data-v="${esc(v)}" type="button">${esc(v)}</button>`).join('');
@@ -251,39 +146,80 @@ const renderViewTabs=()=>{viewTabs.innerHTML=viewOptions.map(o=>`<button class="
 const renderCorpTabs=()=>renderTabs(corpTabs,corpOptions,'corp',v=>state.corp=v);
 const renderModeTabs=()=>renderTabs(modeTabs,modeOptions,'mode',v=>state.mode=v);
 const renderFilterTabs=()=>renderTabs(filterTabs,getFilterOptions(),'filter',v=>state.filter=v);
+function sortByLoadTime(rows){return [...rows].sort((a,b)=>{const ta=a.loadTime&&a.loadTime.trim()?a.loadTime.trim():'99:99';const tb=b.loadTime&&b.loadTime.trim()?b.loadTime.trim():'99:99';if(ta!==tb)return ta.localeCompare(tb);if((a.corp||'')!==(b.corp||''))return (a.corp||'').localeCompare(b.corp||'');return (a.wo||'').localeCompare(b.wo||'');});}
 function renderItemSummary(item){
   const isEtc=item.category==='기타';
   const loc=isEtc?(item.locationText||item.depart):item.depart;
   const third=isEtc?(item.vendorName||item.category):item.category;
-  return `<div class="badge-row">${badge(corpCls(item.corp),item.corp)}${badge('mode-badge',item.shipMode||'기타')}${item.vendorName?badge('vendor-badge',item.vendorName):''}</div>`+`<div class="top-row"><div class="summary-main"><div class="summary-line"><span class="summary-wo">${esc(item.wo||'-')}</span><span class="summary-sep">|</span><span class="summary-model">${esc(item.model||'-')}</span><span class="summary-sep">|</span><span class="summary-customer">${esc(item.customer||'-')}</span></div></div><span class="arrow">&#8964;</span></div>`+`<div class="meta-row">${pill(item.shipDate)}${item.loadTime?pill('상차 '+item.loadTime):''}${pill(loc)}${pill(third)}</div>`;
+  return `<div class="badge-row">${badge(corpCls(item.corp),item.corp)}${badge('mode-badge',item.shipMode||'기타')}${item.vendorName?badge('vendor-badge',item.vendorName):''}</div>`+
+    `<div class="top-row"><div class="summary-main"><div class="summary-line"><span class="summary-wo">${esc(item.wo||'-')}</span><span class="summary-sep">|</span><span class="summary-model">${esc(item.model||'-')}</span><span class="summary-sep">|</span><span class="summary-customer">${esc(item.customer||'-')}</span></div></div><span class="arrow">&#8964;</span></div>`+
+    `<div class="meta-row">${pill(item.shipDate)}${item.loadTime?pill('상차 '+item.loadTime):''}${pill(loc)}${pill(third)}</div>`;
 }
 function renderItemDetail(item){
   const isEtc=item.category==='기타';
-  return `<div class="detail-grid">`+field('법인',item.corp)+field('구분',item.shipMode)+field('출발지',item.depart)+field('시트 구분',item.shipType)+field('출하일',item.shipDate)+field('상차시간',item.loadTime)+field('하차시간',item.unloadTime)+field('FAB OUT',item.fabOut)+field('포장예정',item.packaging)+field('사이즈 전달',item.sizeNotice)+field('출하의뢰',item.shipRequest)+field('통관요청',item.customs)+field('TERMS',item.terms)+field('PSK배차',item.pskDelivery)+field('포워더',item.forwarder)+field('W/O',item.wo)+field('S/N',item.sn)+field('장비명',item.model,true)+field('고객사',item.customer,true)+(isEtc?field('업체명',item.vendorName)+field('부분품',item.moduleText,true):'')+field('담당자',item.manager)+field('INV',item.inv)+field('수출여부 원문',item.exportInfo,true)+`</div>`;
+  return `<div class="detail-grid">`+
+    field('법인',item.corp)+field('구분',item.shipMode)+field('출발지',item.depart)+field('시트 구분',item.shipType)+
+    field('출하일',item.shipDate)+field('상차시간',item.loadTime)+field('하차시간',item.unloadTime)+field('FAB OUT',item.fabOut)+
+    field('포장예정',item.packaging)+field('통관요청',item.customs)+field('TERMS',item.terms)+field('PSK배차',item.pskDelivery)+
+    field('포워더',item.forwarder)+field('W/O',item.wo)+field('S/N',item.sn)+
+    field('장비명',item.model,true)+field('고객사',item.customer,true)+
+    (isEtc?field('업체명',item.vendorName)+field('부분품',item.moduleText,true):'')+
+    field('담당자',item.manager)+field('INV',item.inv)+field('수출여부 원문',item.exportInfo,true)+
+    `</div>`;
 }
 function renderList(items){
   if(!items.length){listEl.innerHTML='<div class="empty">조건에 맞는 데이터가 없습니다.</div>';return;}
-  const rows=[...items].sort(compareDateTime);
-  listEl.innerHTML=rows.map(item=>`<article class="item"><button class="item-head" type="button">${renderItemSummary(item)}</button><div class="detail">${renderItemDetail(item)}</div></article>`).join('');
+  const grp=items.reduce((a,item)=>{const k=item.shipDate||'-';(a[k]=a[k]||[]).push(item);return a;},{});
+  Object.keys(grp).forEach(k=>{grp[k]=sortByLoadTime(grp[k]);});
+  listEl.innerHTML=Object.entries(grp).map(([d,rows])=>`<div class="date-divider">${esc(d)}</div>`+rows.map(item=>`<article class="item"><button class="item-head" type="button">${renderItemSummary(item)}</button><div class="detail">${renderItemDetail(item)}</div></article>`).join('')).join('');
   listEl.querySelectorAll('.item-head').forEach(h=>h.addEventListener('click',()=>h.closest('.item').classList.toggle('open')));
 }
-const calCell=(x,sel)=>x?`<div class="cal-cell ${sel===x.ds?'selected':''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length?`<div class="cal-count">${x.items.length}건</div>`:''}<div class="cal-items">${x.items.slice(0,2).map(it=>`<div class="cal-item">${esc(it.wo||'-')} - ${esc(it.shipType||'-')} - ${esc(it.shipMode||'-')}</div>`).join('')}</div></div>`:`<div class="cal-cell empty"></div>`;
 function renderCalendar(items){
-  const y=state.calendarYear,m=state.calendarMonth,last=new Date(y,m+1,0).getDate();
+  const y=state.calendarYear,m=state.calendarMonth;
+  const last=new Date(y,m+1,0).getDate();
   const byDate=items.reduce((a,item)=>{if(item.shipDate)(a[item.shipDate]=a[item.shipDate]||[]).push(item);return a;},{});
   const pad=n=>String(n).padStart(2,'0');
-  let html='',week=[];
+  const makeDate=day=>`${y}-${pad(m+1)}-${pad(day)}`;
+  let html='';
+  let week=[];
   for(let day=1;day<=last;day++){
-    const ds=`${y}-${pad(m+1)}-${pad(day)}`,wd=new Date(ds+'T00:00:00').getDay();
+    const ds=makeDate(day);
+    const wd=new Date(ds+'T00:00:00').getDay();
     week.push({day,ds,wd,items:byDate[ds]||[]});
     if(wd===0||day===last){
       const hasSat=week.some(x=>x.wd===6&&x.items.length>0);
       const hasSun=week.some(x=>x.wd===0&&x.items.length>0);
-      const cols=['월','화','수','목','금',...(hasSat?['토']:[]),...(hasSun?['일']:[])];
-      const map=Object.fromEntries(week.map(x=>[x.wd,x]));
+      const cols=['월','화','수','목','금'];
+      if(hasSat) cols.push('토');
+      if(hasSun) cols.push('일');
       html+=`<div class="cal-week-block"><div class="cal-week-grid" style="grid-template-columns:repeat(${cols.length},1fr)">`;
       html+=cols.map(n=>`<div class="cal-weekday">${n}</div>`).join('');
-      [1,2,3,4,5,...(hasSat?[6]:[]),...(hasSun?[0]:[])].forEach(k=>{html+=calCell(map[k],state.selectedDate);});
+      const map={1:null,2:null,3:null,4:null,5:null,6:null,0:null};
+      week.forEach(x=>{map[x.wd]=x;});
+      [1,2,3,4,5].forEach(k=>{
+        const x=map[k];
+        if(x){
+          html+=`<div class="cal-cell ${state.selectedDate===x.ds?'selected':''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length?`<div class="cal-count">${x.items.length}건</div>`:''}<div class="cal-items">${x.items.slice(0,2).map(it=>`<div class="cal-item">${esc(it.wo||'-')} - ${esc(it.shipType||'-')} - ${esc(it.shipMode||'-')}</div>`).join('')}</div></div>`;
+        }else{
+          html+=`<div class="cal-cell empty"></div>`;
+        }
+      });
+      if(hasSat){
+        const x=map[6];
+        if(x){
+          html+=`<div class="cal-cell ${state.selectedDate===x.ds?'selected':''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length?`<div class="cal-count">${x.items.length}건</div>`:''}<div class="cal-items">${x.items.slice(0,2).map(it=>`<div class="cal-item">${esc(it.wo||'-')} - ${esc(it.shipType||'-')} - ${esc(it.shipMode||'-')}</div>`).join('')}</div></div>`;
+        }else{
+          html+=`<div class="cal-cell empty"></div>`;
+        }
+      }
+      if(hasSun){
+        const x=map[0];
+        if(x){
+          html+=`<div class="cal-cell ${state.selectedDate===x.ds?'selected':''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length?`<div class="cal-count">${x.items.length}건</div>`:''}<div class="cal-items">${x.items.slice(0,2).map(it=>`<div class="cal-item">${esc(it.wo||'-')} - ${esc(it.shipType||'-')} - ${esc(it.shipMode||'-')}</div>`).join('')}</div></div>`;
+        }else{
+          html+=`<div class="cal-cell empty"></div>`;
+        }
+      }
       html+=`</div></div>`;
       week=[];
     }
@@ -298,202 +234,19 @@ function renderCalendarDayPanel(items){
   const rows=sortByLoadTime(items.filter(item=>item.shipDate===state.selectedDate));
   if(!rows.length){calDayPanel.innerHTML=`<div class="day-panel-title">${esc(state.selectedDate)}</div><div class="empty">선택한 날짜의 데이터가 없습니다.</div>`;return;}
   calDayPanel.innerHTML=`<div class="day-panel-title">${esc(state.selectedDate)} · ${rows.length}건</div><div class="day-list">${rows.map((item,i)=>`<div class="day-card" data-idx="${i}"><div class="day-card-title">${esc(item.wo||'-')} | ${esc(item.model||'-')}</div><div class="day-card-sub">${esc(item.customer||'-')} · ${esc(item.corp||'-')} · ${esc(item.shipMode||'-')}</div><div class="day-card-sub">상차지: ${esc(item.depart||'-')} · 상차시간: ${esc(item.loadTime||'-')}</div></div>`).join('')}</div>`;
-  calDayPanel.querySelectorAll('.day-card').forEach(c=>c.addEventListener('click',()=>openDetailModal(rows[+c.dataset.idx])));
+  calDayPanel.querySelectorAll('.day-card').forEach(c=>c.addEventListener('click',()=>openDetailModal(rows[Number(c.dataset.idx)])));
 }
-function getReportColumns(corp){
-  const base=[
-    {key:'depart',label:'출발지'},{key:'shipType',label:'구분'},
-    {key:'shipDateText',label:'출하일',cls:'col-date'},
-    {key:'loadTime',label:'상차시간'},{key:'unloadTime',label:'하차시간'},
-    {key:'fabOutText',label:'FAB OUT'},{key:'packagingText',label:'포장예정'}
-  ];
-  if(corp==='PSK Holdings') base.push({key:'sizeNotice',label:'사이즈 전달'},{key:'shipRequest',label:'출하의뢰'});
-  base.push({key:'customs',label:'통관요청'},{key:'terms',label:'TERMS'},{key:'pskDelivery',label:'PSK배차'},{key:'wo',label:'W/O',cls:'col-wo'},{key:'sn',label:'S/N'},{key:'model',label:'장비명'},{key:'exportInfo',label:'수출여부',cls:'col-export'},{key:'forwarder',label:'포워더'},{key:'customer',label:'고객사'},{key:'manager',label:'담당자'},{key:'inv',label:'INV',cls:'col-inv'});
-  return base;
-}
-function buildReportTable(corp,rows){
-  const cols=getReportColumns(corp);
-  const dateKey='shipDateText';
-  const dateCounts={};
-  rows.forEach(item=>{const k=String(item[dateKey]||'');dateCounts[k]=(dateCounts[k]||0)+1;});
-  const datePrinted={};
-  let body='';
-  rows.forEach(item=>{
-    body+='<tr>';
-    cols.forEach(c=>{
-      let cls=c.cls||'';
-      if(c.key==='exportInfo'&&item.shipType==='이관') cls+=(cls?' ':'')+'transfer';
-      if(c.key==='inv'&&String(item.inv||'').trim()) cls+=(cls?' ':'')+'has-inv';
-      if(c.key===dateKey){
-        const k=String(item[dateKey]||'');
-        if(!datePrinted[k]){
-          datePrinted[k]=1;
-          const rowspan=Math.max(dateCounts[k]||1,1);
-          const mergedCls=(cls?cls+' ':'')+'merged';
-          body+=`<td class="${esc(mergedCls)}" rowspan="${rowspan}">${esc(showVal(item[c.key]))}</td>`;
-        }
-      }else{
-        body+=`<td class="${esc(cls)}">${esc(showVal(item[c.key]))}</td>`;
-      }
-    });
-    body+='</tr>';
-  });
-  const thead=`<thead><tr>${cols.map(c=>`<th>${esc(c.label)}</th>`).join('')}</tr></thead>`;
-  return `<div class="report-table-wrap"><table class="report-table">${thead}<tbody>${body}</tbody></table></div>`;
-}
-function renderReport(items){
-  if(!items.length){reportEl.innerHTML='<div class="empty">조건에 맞는 데이터가 없습니다.</div>';return;}
-  const corpGroups=items.reduce((a,i)=>{(a[i.corp]=a[i.corp]||[]).push(i);return a;},{});
-  reportEl.innerHTML=reportCorpOrder.filter(c=>corpGroups[c]&&corpGroups[c].length).map(corp=>{
-    const deptGroups=corpGroups[corp].reduce((a,item)=>{const dep=((item.depart||'').trim())||'기타';(a[dep]=a[dep]||[]).push(item);return a;},{});
-    const extraDeps=Object.keys(deptGroups).filter(d=>!reportDepartOrder.includes(d)).sort();
-    const blocks=[...reportDepartOrder,...extraDeps].filter(d=>deptGroups[d]&&deptGroups[d].length).map(dep=>{
-      const sortedRows=[...deptGroups[dep]].sort(compareReportDateTime);
-      return `<section class="report-block"><div class="report-block-title">${esc(dep)} · ${sortedRows.length}건</div>${buildReportTable(corp,sortedRows)}</section>`;
-    }).join('');
-    return `<div class="report-corp"><div class="report-corp-title">${esc(corp)} · ${corpGroups[corp].length}건</div>${blocks}</div>`;
-  }).join('')||'<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
-}
-function buildMailReportHtml(items){
-  if(!items.length) return '<div>조건에 맞는 데이터가 없습니다.</div>';
-  const corpGroups=items.reduce((a,i)=>{(a[i.corp]=a[i.corp]||[]).push(i);return a;},{});
-  const cellBase='border:1px solid #cfd6df;padding:6px 8px;font-size:12px;line-height:1.35;text-align:left;vertical-align:top;white-space:nowrap;';
-  const thStyle=cellBase+'background:#5b8fd1;color:#ffffff;font-weight:700;';
-  const titleStyle='font-size:18px;font-weight:700;margin:18px 0 8px 0;color:#111827;';
-  const blockStyle='font-size:14px;font-weight:700;margin:12px 0 6px 0;color:#111827;';
-  let html='<div style="font-family:Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif;color:#111827;">';
-  reportCorpOrder.filter(c=>corpGroups[c]&&corpGroups[c].length).forEach(corp=>{
-    html+=`<div style="${titleStyle}">${esc(corp)} · ${corpGroups[corp].length}건</div>`;
-    const deptGroups=corpGroups[corp].reduce((a,item)=>{const dep=((item.depart||'').trim())||'기타';(a[dep]=a[dep]||[]).push(item);return a;},{});
-    const extraDeps=Object.keys(deptGroups).filter(d=>!reportDepartOrder.includes(d)).sort();
-    [...reportDepartOrder,...extraDeps].filter(d=>deptGroups[d]&&deptGroups[d].length).forEach(dep=>{
-      const rows=[...deptGroups[dep]].sort(compareReportDateTime);
-      const cols=getReportColumns(corp);
-      const dateKey='shipDateText';
-      const dateCounts={};
-      const datePrinted={};
-      rows.forEach(item=>{const k=String(item[dateKey]||'');dateCounts[k]=(dateCounts[k]||0)+1;});
-      html+=`<div style="${blockStyle}">${esc(dep)} · ${rows.length}건</div>`;
-      html+='<table style="border-collapse:collapse;border-spacing:0;margin:0 0 16px 0;width:auto;max-width:none;">';
-      html+='<thead><tr>';
-      cols.forEach(c=>{html+=`<th style="${thStyle}">${esc(c.label)}</th>`;});
-      html+='</tr></thead><tbody>';
-      rows.forEach(item=>{
-        html+='<tr>';
-        cols.forEach(c=>{
-          let style=cellBase;
-          if(c.key==='shipDateText'||c.key==='wo') style+='color:#111827;font-weight:400;';
-          if(c.key==='shipDateText') style+='background:#f8fbff;font-weight:700;vertical-align:middle;';
-          if(c.key==='exportInfo'&&item.shipType==='이관') style+='background:#fff59d;font-weight:700;';
-          if(c.key==='inv'&&String(item.inv||'').trim()) style+='background:#92d050;font-weight:700;';
-          if(c.key===dateKey){
-            const k=String(item[dateKey]||'');
-            if(!datePrinted[k]){
-              datePrinted[k]=1;
-              const rowspan=Math.max(dateCounts[k]||1,1);
-              html+=`<td style="${style}" rowspan="${rowspan}">${esc(showVal(item[c.key]))}</td>`;
-            }
-          }else{
-            html+=`<td style="${style}">${esc(showVal(item[c.key]))}</td>`;
-          }
-        });
-        html+='</tr>';
-      });
-      html+='</tbody></table>';
-    });
-  });
-  html+='</div>';
-  return html;
-}
-function buildMailReportText(items){
-  if(!items.length) return '조건에 맞는 데이터가 없습니다.';
-  const lines=[];
-  const corpGroups=items.reduce((a,i)=>{(a[i.corp]=a[i.corp]||[]).push(i);return a;},{});
-  reportCorpOrder.filter(c=>corpGroups[c]&&corpGroups[c].length).forEach(corp=>{
-    lines.push(`${corp} · ${corpGroups[corp].length}건`);
-    const deptGroups=corpGroups[corp].reduce((a,item)=>{const dep=((item.depart||'').trim())||'기타';(a[dep]=a[dep]||[]).push(item);return a;},{});
-    const extraDeps=Object.keys(deptGroups).filter(d=>!reportDepartOrder.includes(d)).sort();
-    [...reportDepartOrder,...extraDeps].filter(d=>deptGroups[d]&&deptGroups[d].length).forEach(dep=>{
-      const rows=[...deptGroups[dep]].sort(compareReportDateTime);
-      const cols=getReportColumns(corp);
-      let prevDate='';
-      lines.push(`  ${dep} · ${rows.length}건`);
-      lines.push('  '+cols.map(c=>c.label).join(vbTabSafe()));
-      rows.forEach(item=>{
-        const vals=cols.map(c=>{
-          if(c.key==='shipDateText'){
-            const cur=showVal(item[c.key]);
-            if(cur===prevDate) return '';
-            prevDate=cur;
-            return cur;
-          }
-          return showVal(item[c.key]);
-        });
-        lines.push('  '+vals.join(vbTabSafe()));
-      });
-      lines.push('');
-    });
-    lines.push('');
-  });
-  return lines.join('\n');
-}
-function vbTabSafe(){return '\t';}
-async function copyMailReport(){
-  const items=filteredData();
-  if(!items.length){alert('복사할 데이터가 없습니다.');return;}
-  const html=buildMailReportHtml(items);
-  const text=buildMailReportText(items);
-  const original=copyMailReportBtn.textContent;
-  copyMailReportBtn.disabled=true;
-  try{
-    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
-      const item=new ClipboardItem({
-        'text/html':new Blob([html],{type:'text/html'}),
-        'text/plain':new Blob([text],{type:'text/plain'})
-      });
-      await navigator.clipboard.write([item]);
-    }else if(navigator.clipboard&&navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(text);
-    }else{
-      const ta=document.createElement('textarea');
-      ta.value=text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-    }
-    copyMailReportBtn.textContent='복사완료';
-    setTimeout(()=>{copyMailReportBtn.textContent=original;copyMailReportBtn.disabled=false;},1200);
-  }catch(err){
-    copyMailReportBtn.disabled=false;
-    copyMailReportBtn.textContent=original;
-    alert('복사에 실패했습니다. 브라우저 권한 또는 보안설정을 확인해주세요.');
-  }
-}
+function openDetailModal(item){modalBody.innerHTML=renderItemDetail(item);detailModal.classList.remove('hidden');document.body.style.overflow='hidden';}
+function closeDetailModal(){detailModal.classList.add('hidden');modalBody.innerHTML='';document.body.style.overflow='';}
 function renderMainView(items){
-  const isCalendar=state.view==='calendar',isReport=state.view==='report';
-  listEl.classList.toggle('hidden',isCalendar||isReport);
-  reportEl.classList.toggle('hidden',!isReport);
-  calToolbar.classList.toggle('hidden',!isCalendar);
-  calWrap.classList.toggle('hidden',!isCalendar);
-  if(isCalendar) renderCalendar(items); else if(isReport) renderReport(items); else renderList(items);
+  if(state.view==='list'){listEl.classList.remove('hidden');calToolbar.classList.add('hidden');calWrap.classList.add('hidden');renderList(items);}
+  else{listEl.classList.add('hidden');calToolbar.classList.remove('hidden');calWrap.classList.remove('hidden');renderCalendar(items);}
 }
-function renderAll(){
-  const items=filteredData();
-  renderViewTabs();renderCorpTabs();renderModeTabs();renderFilterTabs();
-  const summaryHtml=`<div class="summary-card"><div class="summary-label">전체 예정 건수</div><div class="summary-value">${items.length}</div></div>`;
-  summaryEl.innerHTML='';
-  summaryInlineEl.innerHTML=summaryHtml;
-  toggleAdvancedFiltersBtn.textContent=state.advancedOpen?'상세 필터 닫기':'상세 필터 열기';
-  advancedFiltersEl.classList.toggle('hidden',!state.advancedOpen);
-  renderMainView(items);
-}
+function renderAll(){const items=filteredData();renderViewTabs();renderCorpTabs();renderModeTabs();renderFilterTabs();summaryEl.innerHTML=`<div class="summary-card"><div class="summary-label">전체 예정 건수</div><div class="summary-value">${items.length}</div></div>`;renderMainView(items);}
 searchInput.addEventListener('input',e=>{state.keyword=e.target.value;renderAll();});
 dateFromEl.addEventListener('change',e=>{state.dateFrom=e.target.value;renderAll();});
 dateToEl.addEventListener('change',e=>{state.dateTo=e.target.value;renderAll();});
 dateResetEl.addEventListener('click',()=>{state.dateFrom='';state.dateTo='';dateFromEl.value='';dateToEl.value='';renderAll();});
-copyMailReportBtn.addEventListener('click',copyMailReport);
-toggleAdvancedFiltersBtn.addEventListener('click',()=>{state.advancedOpen=!state.advancedOpen;renderAll();});
 $('prevMonth').addEventListener('click',()=>{state.calendarMonth--;if(state.calendarMonth<0){state.calendarMonth=11;state.calendarYear--;}state.selectedDate='';renderAll();});
 $('nextMonth').addEventListener('click',()=>{state.calendarMonth++;if(state.calendarMonth>11){state.calendarMonth=0;state.calendarYear++;}state.selectedDate='';renderAll();});
 modalBackdrop.addEventListener('click',closeDetailModal);
