@@ -8,7 +8,7 @@ function getAllowedOrigins(env) {
 function resolveOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
   const allowed = getAllowedOrigins(env);
-
+ 
   if (allowed.includes(origin)) return origin;
   return allowed[0] || "";
 }
