@@ -764,6 +764,14 @@ export default {
         return json({ ok: true, message: "worker alive" }, 200, request, env);
       }
 
+      if (url.pathname === "/api/version" && request.method === "GET") {
+        return json({
+          ok: true,
+         version: "20260413_1745_cookiefix_v2"
+         }, 200, request, env);
+      }
+
+      
       if (url.pathname === "/api/db-test" && request.method === "GET") {
         const row = await env.DB
           .prepare("SELECT datetime('now') AS now_time, 'DB_OK' AS status")
