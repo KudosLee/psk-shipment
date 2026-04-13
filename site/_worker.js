@@ -7,21 +7,34 @@ function getAllowedOrigins(env) {
 
 function resolveOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
+  const requestOrigin = new URL(request.url).origin;
   const allowed = getAllowedOrigins(env);
- 
-  if (allowed.includes(origin)) return origin;
-  return allowed[0] || "";
+
+  if (!allowed.length) {
+    return origin || requestOrigin;
+  }
+
+  if (origin && allowed.includes(origin)) return origin;
+  if (!origin && allowed.includes(requestOrigin)) return requestOrigin;
+
+  return allowed[0] || origin || requestOrigin;
 }
 
 function corsHeaders(request, env) {
-  return {
-    "Access-Control-Allow-Origin": resolveOrigin(request, env),
+  const resolvedOrigin = resolveOrigin(request, env);
+  const headers = {
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Headers": "Content-Type, x-upload-key, x-upload-user",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     "Vary": "Origin",
     "Content-Type": "application/json; charset=utf-8",
   };
+
+  if (resolvedOrigin) {
+    headers["Access-Control-Allow-Origin"] = resolvedOrigin;
+  }
+
+  return headers;
 }
 
 function json(data, status, request, env, extraHeaders = {}) {
@@ -125,7 +138,7 @@ function makeRandomString(len = 32) {
 
 function buildSessionCookie(token, maxAgeSec = 60 * 60 * 8) {
   return [
-    `psk_session=${token}`,
+    `psk_session=${encodeURIComponent(token)}`,
     "Path=/",
     "HttpOnly",
     "Secure",
@@ -142,6 +155,7 @@ function clearSessionCookie() {
     "Secure",
     "SameSite=Lax",
     "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
   ].join("; ");
 }
 
@@ -229,7 +243,7 @@ async function requireUser(request, env) {
   if (!user) {
     return {
       ok: false,
-      response: json({ ok: false, message: "UNAUTHORIZED" }, 401, request, env),
+      response: json({ ok: false, authenticated: false, message: "UNAUTHORIZED" }, 401, request, env),
     };
   }
   return { ok: true, user };
@@ -383,8 +397,10 @@ async function handleDebugCookie(request, env) {
         ? {
             id: sessionUser.user_id,
             username: sessionUser.username,
+            loginId: sessionUser.username,
             role: sessionUser.role,
             displayName: sessionUser.display_name || sessionUser.username,
+            name: sessionUser.display_name || sessionUser.username,
           }
         : null,
     }
@@ -490,8 +506,10 @@ async function handleLogin(request, env) {
         user: {
           id: user.id,
           username: user.username,
+          loginId: user.username,
           role: user.role,
           displayName: user.display_name || user.username,
+          name: user.display_name || user.username,
         }
       },
       200,
@@ -519,11 +537,14 @@ async function handleMe(request, env) {
 
   return json({
     ok: true,
+    authenticated: true,
     user: {
       id: auth.user.user_id,
       username: auth.user.username,
+      loginId: auth.user.username,
       role: auth.user.role,
       displayName: auth.user.display_name || auth.user.username,
+      name: auth.user.display_name || auth.user.username,
     }
   }, 200, request, env);
 }
@@ -711,9 +732,9 @@ async function handleBootstrap(request, env) {
   }
 
   const body = await readJson(request);
-  const username = String(body.username || "").trim();
+  const username = String(body.username || body.loginId || "").trim();
   const password = String(body.password || "").trim();
-  const displayName = String(body.displayName || "").trim();
+  const displayName = String(body.displayName || body.name || "").trim();
 
   if (!username || !password) {
     return json({ ok: false, message: "username/password required" }, 400, request, env);
@@ -746,6 +767,7 @@ async function handleBootstrap(request, env) {
     ok: true,
     message: "ADMIN_CREATED",
     username,
+    loginId: username,
   }, 200, request, env);
 }
 
@@ -753,69 +775,85 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     console.log("FETCH_START", request.url);
-    console.log("PATHNAME", new URL(request.url).pathname);
+    console.log("PATHNAME", url.pathname);
 
-    if (url.pathname.startsWith("/api/")) {
-      if (request.method === "OPTIONS") {
-        return empty(204, request, env);
+    try {
+      if (url.pathname.startsWith("/api/")) {
+        if (request.method === "OPTIONS") {
+          return empty(204, request, env);
+        }
+
+        if (url.pathname === "/api/ping" && request.method === "GET") {
+          return json({ ok: true, message: "worker alive" }, 200, request, env);
+        }
+
+        if (url.pathname === "/api/version" && request.method === "GET") {
+          return json({
+            ok: true,
+            version: "20260413_1905_sameorigin_bootfix_v1"
+          }, 200, request, env);
+        }
+
+        if (url.pathname === "/api/db-test" && request.method === "GET") {
+          const row = await env.DB
+            .prepare("SELECT datetime('now') AS now_time, 'DB_OK' AS status")
+            .first();
+          return json({ ok: true, db: row }, 200, request, env);
+        }
+
+        if (url.pathname === "/api/debug-cookie" && request.method === "GET") {
+          return handleDebugCookie(request, env);
+        }
+
+        if (url.pathname === "/api/auth/login" && request.method === "POST") {
+          return handleLogin(request, env);
+        }
+
+        if (url.pathname === "/api/auth/me" && request.method === "GET") {
+          return handleMe(request, env);
+        }
+
+        if (url.pathname === "/api/auth/logout" && request.method === "POST") {
+          return handleLogout(request, env);
+        }
+
+        if (url.pathname === "/api/admin/logins" && request.method === "GET") {
+          return handleAdminLogs(request, env);
+        }
+
+        if (url.pathname === "/api/shipments/current" && request.method === "GET") {
+          return handleCurrentShipments(request, env);
+        }
+
+        if (url.pathname === "/api/admin/shipments/upload" && request.method === "POST") {
+          return handleAdminShipmentUpload(request, env);
+        }
+
+        if (url.pathname === "/api/admin/bootstrap" && request.method === "POST") {
+          return handleBootstrap(request, env);
+        }
+
+        return json({ ok: false, message: "NOT_FOUND" }, 404, request, env);
       }
 
-      if (url.pathname === "/api/ping" && request.method === "GET") {
-        return json({ ok: true, message: "worker alive" }, 200, request, env);
+      return env.ASSETS.fetch(request);
+    } catch (e) {
+      console.log("UNHANDLED_ERROR", String(e && e.message ? e.message : e));
+
+      if (url.pathname.startsWith("/api/")) {
+        return json(
+          {
+            ok: false,
+            message: "UNHANDLED_ERROR",
+            error: String(e && e.message ? e.message : e),
+          },
+          500,
+          request,
+          env
+        );
       }
 
-      if (url.pathname === "/api/version" && request.method === "GET") {
-        return json({
-          ok: true,
-          version: "20260413_1745_cookiefix_v2"
-        }, 200, request, env);
-      }
-
-      if (url.pathname === "/api/db-test" && request.method === "GET") {
-        const row = await env.DB
-          .prepare("SELECT datetime('now') AS now_time, 'DB_OK' AS status")
-          .first();
-        return json({ ok: true, db: row }, 200, request, env);
-      }
-
-      if (url.pathname === "/api/debug-cookie" && request.method === "GET") {
-        return handleDebugCookie(request, env);
-      }
-
-      if (url.pathname === "/api/auth/login" && request.method === "POST") {
-       return json({
-       ok: true,
-       step: "login route reached"
-        }, 200, request, env);
-      }
-
-      if (url.pathname === "/api/auth/me" && request.method === "GET") {
-        return handleMe(request, env);
-      }
-
-      if (url.pathname === "/api/auth/logout" && request.method === "POST") {
-        return handleLogout(request, env);
-      }
-
-      if (url.pathname === "/api/admin/logins" && request.method === "GET") {
-        return handleAdminLogs(request, env);
-      }
-
-      if (url.pathname === "/api/shipments/current" && request.method === "GET") {
-        return handleCurrentShipments(request, env);
-      }
-
-      if (url.pathname === "/api/admin/shipments/upload" && request.method === "POST") {
-        return handleAdminShipmentUpload(request, env);
-      }
-
-      if (url.pathname === "/api/admin/bootstrap" && request.method === "POST") {
-        return handleBootstrap(request, env);
-      }
-
-      return json({ ok: false, message: "NOT_FOUND" }, 404, request, env);
+      throw e;
     }
-
-    return env.ASSETS.fetch(request);
   }
 };

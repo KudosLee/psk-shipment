@@ -4,6 +4,7 @@ const EMBEDDED_DATA = Array.isArray(VIEWER_CONFIG.embeddedData) ? VIEWER_CONFIG.
 const EMBEDDED_META = VIEWER_CONFIG.embeddedMeta || {};
 
 const now = new Date();
+const APP_VERSION = '20260413_1905_sameorigin_bootfix_v1';
 const API_BASE_URL = '';
 const ENDPOINTS = { login: '/api/auth/login', logout: '/api/auth/logout', me: '/api/auth/me', current: '/api/shipments/current' };
 let appData = Array.isArray(EMBEDDED_DATA) ? EMBEDDED_DATA : [];
@@ -155,7 +156,7 @@ async function apiRequest(path, options, allow401) {
   try {
     res = await fetch(buildApiUrl(path), init);
   } catch (err) {
-    const e = new Error('FETCH_ERROR: ' + (err && err.message ? err.message : String(err)));
+    const e = new Error('NETWORK_ERROR: ' + (err && err.message ? err.message : String(err)));
     e.original = err;
     throw e;
   }
@@ -243,6 +244,7 @@ function normalizeShipmentRow(item) {
 }
 
 async function bootApp() {
+  console.log('[shipment_viewer_app] version =', APP_VERSION);
   setBusy(true);
   showNotice('인증 상태를 확인하는 중입니다.', 'info');
   try {
@@ -252,10 +254,13 @@ async function bootApp() {
       showAppShell();
       await loadRemoteData(false);
     } else {
+      currentUser = null;
       showLoginShell();
       clearNotice();
     }
   } catch (err) {
+    console.error('[bootApp] fetchMe failed:', err);
+    currentUser = null;
     showLoginShell();
     showNotice('인증 상태를 확인하지 못했습니다. ' + getErrMsg(err), 'error');
   } finally {
@@ -321,7 +326,7 @@ async function loadRemoteData(showRefreshMessage) {
   try {
     const payload = normalizeShipmentPayload(await apiRequest(ENDPOINTS.current, { method: 'GET' }));
     appData = (payload.data || []).map(normalizeShipmentRow);
-    pageMeta = Object.assign({}, pageMeta || {}, payload.meta || {}, { source: ENDPOINTS.current, mode: 'remote', itemCount: appData.length });
+    pageMeta = Object.assign({}, pageMeta || {}, payload.meta || {}, { source: ENDPOINTS.current, mode: 'remote', itemCount: appData.length, appVersion: APP_VERSION });
     renderAll();
     if (appData.length === 0) {
       showNotice('/api/shipments/current 응답은 정상이나 표시할 데이터가 없습니다.', 'info');
@@ -348,7 +353,7 @@ async function loadRemoteData(showRefreshMessage) {
 const formatStamp = meta => esc((meta && (meta.updatedAt || meta.updatedAtDisplay || meta.updatedAtIso || meta.generatedAt || meta.generatedAtIso)) || '-');
 
 function renderPageMetaBar() {
-  refs.pageMetaBarEl.innerHTML = `<span class="page-meta-chip"><strong>최종 수정</strong>${formatStamp(pageMeta)}</span><span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span><span class="page-meta-chip"><strong>소스</strong>${esc(pageMeta.source || '/api/shipments/current')}</span><button class="page-meta-btn" id="versionHistoryBtn" type="button">이전 버전</button>`;
+  refs.pageMetaBarEl.innerHTML = `<span class="page-meta-chip"><strong>앱 버전</strong>${esc(APP_VERSION)}</span><span class="page-meta-chip"><strong>최종 수정</strong>${formatStamp(pageMeta)}</span><span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span><span class="page-meta-chip"><strong>소스</strong>${esc(pageMeta.source || '/api/shipments/current')}</span><button class="page-meta-btn" id="versionHistoryBtn" type="button">이전 버전</button>`;
   const btn = $('versionHistoryBtn');
   if (btn) btn.addEventListener('click', () => showNotice('이전 버전 기능은 인증 연동 버전에서 추후 재구성 예정입니다.', 'info'));
 }
@@ -685,6 +690,7 @@ function bindStaticEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[shipment_viewer_app] DOMContentLoaded');
   initRefs();
   bindStaticEvents();
   renderUserBar();
