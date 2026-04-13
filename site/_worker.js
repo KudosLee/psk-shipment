@@ -836,7 +836,12 @@ export default {
         return json({ ok: false, message: "NOT_FOUND" }, 404, request, env);
       }
 
-      return env.ASSETS.fetch(request);
+      console.log("ASSETS_FALLBACK", request.url);
+      const assetRes = await env.ASSETS.fetch(request);
+      console.log("ASSETS_STATUS", assetRes.status, assetRes.headers.get("content-type") || "");
+      return assetRes;
+      
+
     } catch (e) {
       console.log("UNHANDLED_ERROR", String(e && e.message ? e.message : e));
 
