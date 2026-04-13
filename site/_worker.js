@@ -154,6 +154,16 @@ function normalizeShipmentPayload(payload) {
   return { meta, data };
 }
 
+if (url.pathname === '/api/auth/login' && request.method === 'POST') {
+  return new Response(
+    JSON.stringify({ ok: true, step: 'login route reached' }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' }
+    }
+  );
+}
+
 async function writeAccessLog(env, log) {
   await env.DB.prepare(`
     INSERT INTO access_logs (
