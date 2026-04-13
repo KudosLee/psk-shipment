@@ -471,7 +471,7 @@ function renderItemDetail(item) {
     + field('INV', item.inv)
     + field('\uC218\uCD9C\uC5EC\uBD80 \uC6D0\uBB38', item.exportInfo, true)
     + `</div>`;
-}
+} 
 
 function renderList(items) {
   if (!items.length) {
