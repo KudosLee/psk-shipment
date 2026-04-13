@@ -783,7 +783,10 @@ export default {
       }
 
       if (url.pathname === "/api/auth/login" && request.method === "POST") {
-        return handleLogin(request, env);
+       return json({
+       ok: true,
+       step: "login route reached"
+        }, 200, request, env);
       }
 
       if (url.pathname === "/api/auth/me" && request.method === "GET") {
