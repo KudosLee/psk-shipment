@@ -4,21 +4,20 @@ const EMBEDDED_DATA = Array.isArray(VIEWER_CONFIG.embeddedData) ? VIEWER_CONFIG.
 const EMBEDDED_META = VIEWER_CONFIG.embeddedMeta || {};
 
 const now = new Date();
-const APP_VERSION = '20260413_1905_sameorigin_bootfix_v1';
 const API_BASE_URL = '';
 const ENDPOINTS = { login: '/api/auth/login', logout: '/api/auth/logout', me: '/api/auth/me', current: '/api/shipments/current' };
 let appData = Array.isArray(EMBEDDED_DATA) ? EMBEDDED_DATA : [];
 let pageMeta = EMBEDDED_META || {};
 let currentUser = null;
-const state = { corp: '전체 법인', mode: '전체', filter: '전체', keyword: '', dateFrom: '', dateTo: '', view: 'list', calendarYear: now.getFullYear(), calendarMonth: now.getMonth(), selectedDate: '', listDate: '', advancedOpen: false };
+const state = { corp: '\uC804\uCCB4 \uBC95\uC778', mode: '\uC804\uCCB4', filter: '\uC804\uCCB4', keyword: '', dateFrom: '', dateTo: '', view: 'list', calendarYear: now.getFullYear(), calendarMonth: now.getMonth(), selectedDate: '', listDate: '', advancedOpen: false };
 const $ = id => document.getElementById(id);
 const refs = {};
-const corpOptions = ['전체 법인', 'PSK', 'PSK Holdings'];
-const modeOptions = ['전체', '내수', '항공', '해상', '이관', '기타'];
-const viewOptions = [{ label: '캘린더', value: 'calendar' }, { label: '요약', value: 'report' }, { label: '상세내용', value: 'list' }];
-const categorySet = new Set(['전체', '본사(HQ)', '2사업장', '기타']);
+const corpOptions = ['\uC804\uCCB4 \uBC95\uC778', 'PSK', 'PSK Holdings'];
+const modeOptions = ['\uC804\uCCB4', '\uB0B4\uC218', '\uD56D\uACF5', '\uD574\uC0C1', '\uC774\uAD00', '\uAE30\uD0C0'];
+const viewOptions = [{ label: '\uCE98\uB9B0\uB354', value: 'calendar' }, { label: '\uC694\uC57D', value: 'report' }, { label: '\uC0C1\uC138\uB0B4\uC6A9', value: 'list' }];
+const categorySet = new Set(['\uC804\uCCB4', '\uBCF8\uC0AC(HQ)', '2\uC0AC\uC5C5\uC7A5', '\uAE30\uD0C0']);
 const reportCorpOrder = ['PSK', 'PSK Holdings'];
-const reportDepartOrder = ['PSK HQ', '2사업장', '조립업체', '기타'];
+const reportDepartOrder = ['PSK HQ', '2\uC0AC\uC5C5\uC7A5', '\uC870\uB9BD\uC5C5\uCCB4', '\uAE30\uD0C0'];
 
 const esc = v => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const badge = (cls, txt) => `<span class="${cls}">${esc(txt)}</span>`;
@@ -26,7 +25,7 @@ const pill = txt => `<span class="pill">${esc(txt)}</span>`;
 const corpCls = c => c === 'PSK' ? 'corp-badge corp-psk' : 'corp-badge corp-holdings';
 const field = (label, val, full) => `<div class="field"${full ? ' style="grid-column:1/-1"' : ''}><div class="field-label">${esc(label)}</div><div class="field-value">${esc(val || '-')}</div></div>`;
 const showVal = v => String(v ?? '').trim() || '-';
-const getFilterOptions = () => ['전체', '본사(HQ)', '2사업장', '기타', ...[...new Set(appData.map(d => d.vendorName).filter(Boolean))].sort()];
+const getFilterOptions = () => ['\uC804\uCCB4', '\uBCF8\uC0AC(HQ)', '2\uC0AC\uC5C5\uC7A5', '\uAE30\uD0C0', ...[...new Set(appData.map(d => d.vendorName).filter(Boolean))].sort()];
 
 const compareDateTime = (a, b) => {
   const da = (a.shipDate || '9999-99-99').trim() || '9999-99-99';
@@ -57,7 +56,7 @@ const sortByLoadTime = rows => [...rows].sort((a, b) => {
 });
 
 const openDetailModal = item => {
-  if (refs.modalTitleEl) refs.modalTitleEl.textContent = '출하 상세정보';
+  if (refs.modalTitleEl) refs.modalTitleEl.textContent = '\uCD9C\uD558 \uC0C1\uC138\uC815\uBCF4';
   refs.modalBody.innerHTML = renderItemDetail(item);
   refs.detailModal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
@@ -66,7 +65,7 @@ const openDetailModal = item => {
 const closeDetailModal = () => {
   refs.detailModal.classList.add('hidden');
   refs.modalBody.innerHTML = '';
-  if (refs.modalTitleEl) refs.modalTitleEl.textContent = '출하 상세정보';
+  if (refs.modalTitleEl) refs.modalTitleEl.textContent = '\uCD9C\uD558 \uC0C1\uC138\uC815\uBCF4';
   document.body.style.overflow = '';
 };
 
@@ -156,7 +155,7 @@ async function apiRequest(path, options, allow401) {
   try {
     res = await fetch(buildApiUrl(path), init);
   } catch (err) {
-    const e = new Error('NETWORK_ERROR: ' + (err && err.message ? err.message : String(err)));
+    const e = new Error('FETCH_ERROR: ' + (err && err.message ? err.message : String(err)));
     e.original = err;
     throw e;
   }
@@ -204,12 +203,12 @@ function normalizeUser(payload) {
 function renderUserBar() {
   if (!refs.userBar) return;
   if (!currentUser) {
-    refs.userBar.innerHTML = '<span class="user-chip">미로그인</span>';
+    refs.userBar.innerHTML = '<span class="user-chip">\uBBF8\uB85C\uADF8\uC778</span>';
     return;
   }
   const role = safeRole(currentUser);
   const roleCls = role === 'ADMIN' ? 'admin' : 'user';
-  refs.userBar.innerHTML = `<span class="user-chip"><strong>${esc(safeUserName(currentUser))}</strong><span>${esc(safeUserId(currentUser))}</span><span class="user-role ${roleCls}">${esc(role)}</span></span><button class="user-btn" id="reloadBtn" type="button">새로고침</button><button class="user-btn" id="logoutBtn" type="button">로그아웃</button>`;
+  refs.userBar.innerHTML = `<span class="user-chip"><strong>${esc(safeUserName(currentUser))}</strong><span>${esc(safeUserId(currentUser))}</span><span class="user-role ${roleCls}">${esc(role)}</span></span><button class="user-btn" id="reloadBtn" type="button">\uC0C8\uB85C\uACE0\uCE68</button><button class="user-btn" id="logoutBtn" type="button">\uB85C\uADF8\uC544\uC6C3</button>`;
   const reloadBtn = $('reloadBtn');
   const logoutBtn = $('logoutBtn');
   if (reloadBtn) reloadBtn.addEventListener('click', () => loadRemoteData(true));
@@ -244,9 +243,8 @@ function normalizeShipmentRow(item) {
 }
 
 async function bootApp() {
-  console.log('[shipment_viewer_app] version =', APP_VERSION);
   setBusy(true);
-  showNotice('인증 상태를 확인하는 중입니다.', 'info');
+  showNotice('\uC778\uC99D \uC0C1\uD0DC\uB97C \uD655\uC778\uD558\uB294 \uC911\uC785\uB2C8\uB2E4.', 'info');
   try {
     const me = await fetchMe();
     if (me) {
@@ -254,15 +252,12 @@ async function bootApp() {
       showAppShell();
       await loadRemoteData(false);
     } else {
-      currentUser = null;
       showLoginShell();
       clearNotice();
     }
   } catch (err) {
-    console.error('[bootApp] fetchMe failed:', err);
-    currentUser = null;
     showLoginShell();
-    showNotice('인증 상태를 확인하지 못했습니다. ' + getErrMsg(err), 'error');
+    showNotice('\uC778\uC99D \uC0C1\uD0DC\uB97C \uD655\uC778\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. ' + getErrMsg(err), 'error');
   } finally {
     setBusy(false);
   }
@@ -273,26 +268,26 @@ async function onLoginSubmit(e) {
   const loginId = (refs.loginId.value || '').trim();
   const password = refs.loginPassword.value || '';
   if (!loginId || !password) {
-    showNotice('아이디와 비밀번호를 입력해주세요.', 'error');
+    showNotice('\uC544\uC774\uB514\uC640 \uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694.', 'error');
     return;
   }
   setBusy(true);
-  showNotice('로그인 중입니다.', 'info');
+  showNotice('\uB85C\uADF8\uC778 \uC911\uC785\uB2C8\uB2E4.', 'info');
   try {
     const payload = await apiRequest(ENDPOINTS.login, {
       method: 'POST',
       body: JSON.stringify({ username: loginId, loginId: loginId, password: password })
     });
     currentUser = normalizeUser(payload) || await fetchMe();
-    if (!currentUser) throw new Error('로그인은 되었지만 사용자 정보를 확인하지 못했습니다.');
+    if (!currentUser) throw new Error('\uB85C\uADF8\uC778\uC740 \uB418\uC5C8\uC9C0\uB9CC \uC0AC\uC6A9\uC790 \uC815\uBCF4\uB97C \uD655\uC778\uD558\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.');
     refs.loginPassword.value = '';
     showAppShell();
-    showNotice('로그인되었습니다.', 'success');
+    showNotice('\uB85C\uADF8\uC778\uB418\uC5C8\uC2B5\uB2C8\uB2E4.', 'success');
     await loadRemoteData(false);
   } catch (err) {
     currentUser = null;
     showLoginShell();
-    showNotice('로그인 실패: ' + getErrMsg(err), 'error');
+    showNotice('\uB85C\uADF8\uC778 \uC2E4\uD328: ' + getErrMsg(err), 'error');
   } finally {
     setBusy(false);
   }
@@ -309,29 +304,29 @@ async function onLogout() {
   state.keyword = '';
   state.dateFrom = '';
   state.dateTo = '';
-  state.filter = '전체';
-  state.corp = '전체 법인';
-  state.mode = '전체';
+  state.filter = '\uC804\uCCB4';
+  state.corp = '\uC804\uCCB4 \uBC95\uC778';
+  state.mode = '\uC804\uCCB4';
   state.selectedDate = '';
   state.listDate = '';
   showLoginShell();
   renderAll();
-  showNotice('로그아웃되었습니다.', 'success');
+  showNotice('\uB85C\uADF8\uC544\uC6C3\uB418\uC5C8\uC2B5\uB2C8\uB2E4.', 'success');
   setBusy(false);
 }
 
 async function loadRemoteData(showRefreshMessage) {
-  if (showRefreshMessage) showNotice('출하 데이터를 다시 불러오는 중입니다.', 'info');
+  if (showRefreshMessage) showNotice('\uCD9C\uD558 \uB370\uC774\uD130\uB97C \uB2E4\uC2DC \uBD88\uB7EC\uC624\uB294 \uC911\uC785\uB2C8\uB2E4.', 'info');
   setBusy(true);
   try {
     const payload = normalizeShipmentPayload(await apiRequest(ENDPOINTS.current, { method: 'GET' }));
     appData = (payload.data || []).map(normalizeShipmentRow);
-    pageMeta = Object.assign({}, pageMeta || {}, payload.meta || {}, { source: ENDPOINTS.current, mode: 'remote', itemCount: appData.length, appVersion: APP_VERSION });
+    pageMeta = Object.assign({}, pageMeta || {}, payload.meta || {}, { source: ENDPOINTS.current, mode: 'remote', itemCount: appData.length });
     renderAll();
     if (appData.length === 0) {
-      showNotice('/api/shipments/current 응답은 정상이나 표시할 데이터가 없습니다.', 'info');
+      showNotice('/api/shipments/current \uC751\uB2F5\uC740 \uC815\uC0C1\uC774\uB098 \uD45C\uC2DC\uD560 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.', 'info');
     } else if (showRefreshMessage) {
-      showNotice('데이터를 새로고침했습니다.', 'success');
+      showNotice('\uB370\uC774\uD130\uB97C \uC0C8\uB85C\uACE0\uCE68\uD588\uC2B5\uB2C8\uB2E4.', 'success');
     } else {
       clearNotice();
     }
@@ -339,12 +334,12 @@ async function loadRemoteData(showRefreshMessage) {
     if (err && err.status === 401) {
       currentUser = null;
       showLoginShell();
-      showNotice('세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
+      showNotice('\uC138\uC158\uC774 \uB9CC\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uB85C\uADF8\uC778\uD574\uC8FC\uC138\uC694.', 'error');
       return;
     }
     appData = [];
     renderAll();
-    showNotice('출하 데이터를 불러오지 못했습니다. ' + getErrMsg(err), 'error');
+    showNotice('\uCD9C\uD558 \uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. ' + getErrMsg(err), 'error');
   } finally {
     setBusy(false);
   }
@@ -353,31 +348,31 @@ async function loadRemoteData(showRefreshMessage) {
 const formatStamp = meta => esc((meta && (meta.updatedAt || meta.updatedAtDisplay || meta.updatedAtIso || meta.generatedAt || meta.generatedAtIso)) || '-');
 
 function renderPageMetaBar() {
-  refs.pageMetaBarEl.innerHTML = `<span class="page-meta-chip"><strong>앱 버전</strong>${esc(APP_VERSION)}</span><span class="page-meta-chip"><strong>최종 수정</strong>${formatStamp(pageMeta)}</span><span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span><span class="page-meta-chip"><strong>소스</strong>${esc(pageMeta.source || '/api/shipments/current')}</span><button class="page-meta-btn" id="versionHistoryBtn" type="button">이전 버전</button>`;
+  refs.pageMetaBarEl.innerHTML = `<span class="page-meta-chip"><strong>\uCD5C\uC885 \uC218\uC815</strong>${formatStamp(pageMeta)}</span><span class="page-meta-chip"><strong>\uB370\uC774\uD130 \uAC74\uC218</strong>${esc(String(appData.length))}</span><span class="page-meta-chip"><strong>\uC18C\uC2A4</strong>${esc(pageMeta.source || '/api/shipments/current')}</span><button class="page-meta-btn" id="versionHistoryBtn" type="button">\uC774\uC804 \uBC84\uC804</button>`;
   const btn = $('versionHistoryBtn');
-  if (btn) btn.addEventListener('click', () => showNotice('이전 버전 기능은 인증 연동 버전에서 추후 재구성 예정입니다.', 'info'));
+  if (btn) btn.addEventListener('click', () => showNotice('\uC774\uC804 \uBC84\uC804 \uAE30\uB2A5\uC740 \uC778\uC99D \uC5F0\uB3D9 \uBC84\uC804\uC5D0\uC11C \uCD94\uD6C4 \uC7AC\uAD6C\uC131 \uC608\uC815\uC785\uB2C8\uB2E4.', 'info'));
 }
 
 function openModalHtml(title, html) {
-  if (refs.modalTitleEl) refs.modalTitleEl.textContent = title || '상세정보';
+  if (refs.modalTitleEl) refs.modalTitleEl.textContent = title || '\uC0C1\uC138\uC815\uBCF4';
   refs.modalBody.innerHTML = html || '';
   refs.detailModal.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
 
 function getErrMsg(err) {
-  if (!err) return '오류';
+  if (!err) return '\uC624\uB958';
   if (err.payload && err.payload.message) return err.payload.message;
   if (err.payload && err.payload.error) return err.payload.error;
-  return err.message ? err.message : '오류';
+  return err.message ? err.message : '\uC624\uB958';
 }
 
 function filteredData() {
   const kw = (state.keyword || '').trim().toLowerCase();
   return appData.filter(item => {
-    if (state.corp !== '전체 법인' && item.corp !== state.corp) return false;
-    if (state.mode !== '전체' && item.shipMode !== state.mode) return false;
-    if (state.filter !== '전체') {
+    if (state.corp !== '\uC804\uCCB4 \uBC95\uC778' && item.corp !== state.corp) return false;
+    if (state.mode !== '\uC804\uCCB4' && item.shipMode !== state.mode) return false;
+    if (state.filter !== '\uC804\uCCB4') {
       if (categorySet.has(state.filter) ? item.category !== state.filter : item.vendorName !== state.filter) return false;
     }
     const d = item.shipDate;
@@ -402,16 +397,16 @@ function pickInitialListDate(items, current) {
 }
 
 function formatListDateLabel(ymd) {
-  if (!ymd) return '날짜 미정';
+  if (!ymd) return '\uB0A0\uC9DC \uBBF8\uC815';
   const base = ymdToDate(ymd);
   if (!base) return ymd;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const diff = Math.round((base - today) / 86400000);
   const md = `${base.getMonth() + 1}/${base.getDate()}`;
-  if (diff === 0) return `오늘 (${md})`;
-  if (diff === 1) return `내일 (${md})`;
-  if (diff === -1) return `어제 (${md})`;
+  if (diff === 0) return `\uC624\uB298 (${md})`;
+  if (diff === 1) return `\uB0B4\uC77C (${md})`;
+  if (diff === -1) return `\uC5B4\uC81C (${md})`;
   return `${base.getFullYear()}-${String(base.getMonth() + 1).padStart(2, '0')}-${String(base.getDate()).padStart(2, '0')} (${md})`;
 }
 
@@ -440,48 +435,48 @@ const renderModeTabs = () => renderTabs(refs.modeTabs, modeOptions, 'mode', v =>
 const renderFilterTabs = () => renderTabs(refs.filterTabs, getFilterOptions(), 'filter', v => state.filter = v);
 
 function renderItemSummary(item) {
-  const isEtc = item.category === '기타';
+  const isEtc = item.category === '\uAE30\uD0C0';
   const corpLabel = item.corp === 'PSK Holdings' ? 'PSKH' : 'PSK';
   const workDate = item.shipDateText || item.shipDate || '-';
-  const workLoc = item.depart === '조립업체' ? (item.vendorName || item.depart) : (isEtc ? (item.locationText || item.depart) : item.depart);
-  const customerLine = [item.customer || '', corpLabel, item.shipMode || '기타'].filter(Boolean).join(' · ');
-  const workLine = '작업지: ' + (workLoc || '-') + (item.loadTime ? ' · 상차시간: ' + item.loadTime : '');
-  return `<div class="badge-row">${badge(corpCls(item.corp), corpLabel)}${badge('mode-badge', item.shipMode || '기타')}</div>` + `<div class="top-row"><div class="summary-main"><div class="summary-line"><span class="summary-wo">${esc(item.wo || '-')}</span></div><div class="summary-subline">${esc(workDate)}</div><div class="summary-model-line">${esc(item.model || '-')}</div><div class="summary-subline">${esc(customerLine || '-')}</div><div class="summary-subline">${esc(workLine)}</div></div><span class="arrow">&#8964;</span></div>`;
+  const workLoc = item.depart === '\uC870\uB9BD\uC5C5\uCCB4' ? (item.vendorName || item.depart) : (isEtc ? (item.locationText || item.depart) : item.depart);
+  const customerLine = [item.customer || '', corpLabel, item.shipMode || '\uAE30\uD0C0'].filter(Boolean).join(' \u00B7 ');
+  const workLine = '\uC791\uC5C5\uC9C0: ' + (workLoc || '-') + (item.loadTime ? ' \u00B7 \uC0C1\uCC28\uC2DC\uAC04: ' + item.loadTime : '');
+  return `<div class="badge-row">${badge(corpCls(item.corp), corpLabel)}${badge('mode-badge', item.shipMode || '\uAE30\uD0C0')}</div>` + `<div class="top-row"><div class="summary-main"><div class="summary-line"><span class="summary-wo">${esc(item.wo || '-')}</span></div><div class="summary-subline">${esc(workDate)}</div><div class="summary-model-line">${esc(item.model || '-')}</div><div class="summary-subline">${esc(customerLine || '-')}</div><div class="summary-subline">${esc(workLine)}</div></div><span class="arrow">&#8964;</span></div>`;
 }
 
 function renderItemDetail(item) {
-  const isEtc = item.category === '기타';
+  const isEtc = item.category === '\uAE30\uD0C0';
   return `<div class="detail-grid">`
-    + field('법인', item.corp)
-    + field('구분', item.shipMode)
-    + field('출발지', item.depart)
-    + field('시트 구분', item.shipType)
-    + field('출하일', item.shipDate)
-    + field('상차시간', item.loadTime)
-    + field('하차시간', item.unloadTime)
+    + field('\uBC95\uC778', item.corp)
+    + field('\uAD6C\uBD84', item.shipMode)
+    + field('\uCD9C\uBC1C\uC9C0', item.depart)
+    + field('\uC2DC\uD2B8 \uAD6C\uBD84', item.shipType)
+    + field('\uCD9C\uD558\uC77C', item.shipDate)
+    + field('\uC0C1\uCC28\uC2DC\uAC04', item.loadTime)
+    + field('\uD558\uCC28\uC2DC\uAC04', item.unloadTime)
     + field('FAB OUT', item.fabOut)
-    + field('포장예정', item.packaging)
-    + field('사이즈 전달', item.sizeNotice)
-    + field('출하의뢰', item.shipRequest)
-    + field('통관요청', item.customs)
+    + field('\uD3EC\uC7A5\uC608\uC815', item.packaging)
+    + field('\uC0AC\uC774\uC988 \uC804\uB2EC', item.sizeNotice)
+    + field('\uCD9C\uD558\uC758\uB8B0', item.shipRequest)
+    + field('\uD1B5\uAD00\uC694\uCCAD', item.customs)
     + field('TERMS', item.terms)
-    + field('PSK배차', item.pskDelivery)
-    + field('포워더', item.forwarder)
+    + field('PSK\uBC30\uCC28', item.pskDelivery)
+    + field('\uD3EC\uC6CC\uB354', item.forwarder)
     + field('W/O', item.wo)
     + field('S/N', item.sn)
-    + field('장비명', item.model, true)
-    + field('고객사', item.customer, true)
-    + (isEtc ? field('업체명', item.vendorName) + field('부분품', item.moduleText, true) : '')
-    + field('담당자', item.manager)
+    + field('\uC7A5\uBE44\uBA85', item.model, true)
+    + field('\uACE0\uAC1D\uC0AC', item.customer, true)
+    + (isEtc ? field('\uC5C5\uCCB4\uBA85', item.vendorName) + field('\uBD80\uBD84\uD488', item.moduleText, true) : '')
+    + field('\uB2F4\uB2F9\uC790', item.manager)
     + field('INV', item.inv)
-    + field('수출여부 원문', item.exportInfo, true)
+    + field('\uC218\uCD9C\uC5EC\uBD80 \uC6D0\uBB38', item.exportInfo, true)
     + `</div>`;
 }
 
 function renderList(items) {
   if (!items.length) {
     state.listDate = '';
-    refs.listEl.innerHTML = '<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
+    refs.listEl.innerHTML = '<div class="empty">\uC870\uAC74\uC5D0 \uB9DE\uB294 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</div>';
     return;
   }
   const dates = listDateCandidates(items);
@@ -490,9 +485,9 @@ function renderList(items) {
   const currentIndex = Math.max(dates.indexOf(currentDate), 0);
   const rows = items.filter(item => item.shipDate === currentDate).sort(compareDateTime);
   const title = formatListDateLabel(currentDate);
-  const subText = rows.length ? `${rows.length}건` : '';
+  const subText = rows.length ? `${rows.length}\uAC74` : '';
   const navHtml = `<div class="list-day-nav"><button class="list-day-btn" id="listPrevDate" type="button" ${currentIndex <= 0 ? 'disabled' : ''}>&lt;</button><div class="list-day-nav-main"><div class="list-day-title">${esc(title)}</div><div class="list-day-sub">${esc(subText)}</div></div><button class="list-day-btn" id="listNextDate" type="button" ${currentIndex >= dates.length - 1 ? 'disabled' : ''}>&gt;</button></div>`;
-  const bodyHtml = rows.length ? rows.map(item => `<article class="item"><button class="item-head" type="button">${renderItemSummary(item)}</button><div class="detail">${renderItemDetail(item)}</div></article>`).join('') : '<div class="empty">해당 날짜 작업이 없습니다.</div>';
+  const bodyHtml = rows.length ? rows.map(item => `<article class="item"><button class="item-head" type="button">${renderItemSummary(item)}</button><div class="detail">${renderItemDetail(item)}</div></article>`).join('') : '<div class="empty">\uD574\uB2F9 \uB0A0\uC9DC \uC791\uC5C5\uC774 \uC5C6\uC2B5\uB2C8\uB2E4.</div>';
   refs.listEl.innerHTML = navHtml + bodyHtml;
   const prevBtn = $('listPrevDate');
   const nextBtn = $('listNextDate');
@@ -501,7 +496,7 @@ function renderList(items) {
   refs.listEl.querySelectorAll('.item-head').forEach(h => h.addEventListener('click', () => h.closest('.item').classList.toggle('open')));
 }
 
-const calCell = (x, sel) => x ? `<div class="cal-cell ${sel === x.ds ? 'selected' : ''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length ? `<div class="cal-count">${x.items.length}건</div>` : ''}<div class="cal-items">${x.items.slice(0, 2).map(it => `<div class="cal-item">${esc(it.wo || '-')} - ${esc(it.shipType || '-')} - ${esc(it.shipMode || '-')}</div>`).join('')}</div></div>` : `<div class="cal-cell empty"></div>`;
+const calCell = (x, sel) => x ? `<div class="cal-cell ${sel === x.ds ? 'selected' : ''}" data-date="${x.ds}"><div class="cal-day">${x.day}</div>${x.items.length ? `<div class="cal-count">${x.items.length}\uAC74</div>` : ''}<div class="cal-items">${x.items.slice(0, 2).map(it => `<div class="cal-item">${esc(it.wo || '-')} - ${esc(it.shipType || '-')} - ${esc(it.shipMode || '-')}</div>`).join('')}</div></div>` : `<div class="cal-cell empty"></div>`;
 
 function renderCalendar(items) {
   const y = state.calendarYear;
@@ -521,7 +516,7 @@ function renderCalendar(items) {
     if (wd === 0 || day === last) {
       const hasSat = week.some(x => x.wd === 6 && x.items.length > 0);
       const hasSun = week.some(x => x.wd === 0 && x.items.length > 0);
-      const cols = ['월', '화', '수', '목', '금', ...(hasSat ? ['토'] : []), ...(hasSun ? ['일'] : [])];
+      const cols = ['\uC6D4', '\uD654', '\uC218', '\uBAA9', '\uAE08', ...(hasSat ? ['\uD1A0'] : []), ...(hasSun ? ['\uC77C'] : [])];
       const map = Object.fromEntries(week.map(x => [x.wd, x]));
       html += `<div class="cal-week-block"><div class="cal-week-grid" style="grid-template-columns:repeat(${cols.length},1fr)">`;
       html += cols.map(n => `<div class="cal-weekday">${n}</div>`).join('');
@@ -531,37 +526,37 @@ function renderCalendar(items) {
     }
   }
   refs.calEl.innerHTML = html;
-  refs.calTitleEl.textContent = `${y}년 ${m + 1}월`;
+  refs.calTitleEl.textContent = `${y}\uB144 ${m + 1}\uC6D4`;
   refs.calEl.querySelectorAll('.cal-cell[data-date]').forEach(c => c.addEventListener('click', () => { state.selectedDate = c.dataset.date; renderAll(); }));
   renderCalendarDayPanel(items);
 }
 
 function renderCalendarDayPanel(items) {
   if (!state.selectedDate) {
-    refs.calDayPanel.innerHTML = '<div class="day-panel-title">날짜를 선택하세요</div>';
+    refs.calDayPanel.innerHTML = '<div class="day-panel-title">\uB0A0\uC9DC\uB97C \uC120\uD0DD\uD558\uC138\uC694</div>';
     return;
   }
   const rows = sortByLoadTime(items.filter(item => item.shipDate === state.selectedDate));
   if (!rows.length) {
-    refs.calDayPanel.innerHTML = `<div class="day-panel-title">${esc(state.selectedDate)}</div><div class="empty">선택한 날짜의 데이터가 없습니다.</div>`;
+    refs.calDayPanel.innerHTML = `<div class="day-panel-title">${esc(state.selectedDate)}</div><div class="empty">\uC120\uD0DD\uD55C \uB0A0\uC9DC\uC758 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</div>`;
     return;
   }
-  refs.calDayPanel.innerHTML = `<div class="day-panel-title">${esc(state.selectedDate)} · ${rows.length}건</div><div class="day-list">${rows.map((item, i) => {
-    const workLoc = item.depart === '조립업체' ? (item.vendorName || item.depart) : ((item.category === '기타') ? (item.locationText || item.depart) : item.depart);
-    return `<div class="day-card ${item.redAlert === 'Y' ? 'alert' : ''}" data-idx="${i}"><div class="day-card-title">${esc(item.wo || '-')} | ${esc(item.model || '-')}</div><div class="day-card-sub">${esc(item.customer || '-')} · ${esc(item.corp || '-')} · ${esc(item.shipMode || '-')}</div><div class="day-card-sub">작업지: ${esc(workLoc || '-')} · 상차시간: ${esc(item.loadTime || '-')}</div></div>`;
+  refs.calDayPanel.innerHTML = `<div class="day-panel-title">${esc(state.selectedDate)} \u00B7 ${rows.length}\uAC74</div><div class="day-list">${rows.map((item, i) => {
+    const workLoc = item.depart === '\uC870\uB9BD\uC5C5\uCCB4' ? (item.vendorName || item.depart) : ((item.category === '\uAE30\uD0C0') ? (item.locationText || item.depart) : item.depart);
+    return `<div class="day-card ${item.redAlert === 'Y' ? 'alert' : ''}" data-idx="${i}"><div class="day-card-title">${esc(item.wo || '-')} | ${esc(item.model || '-')}</div><div class="day-card-sub">${esc(item.customer || '-')} \u00B7 ${esc(item.corp || '-')} \u00B7 ${esc(item.shipMode || '-')}</div><div class="day-card-sub">\uC791\uC5C5\uC9C0: ${esc(workLoc || '-')} \u00B7 \uC0C1\uCC28\uC2DC\uAC04: ${esc(item.loadTime || '-')}</div></div>`;
   }).join('')}</div>`;
   refs.calDayPanel.querySelectorAll('.day-card').forEach(c => c.addEventListener('click', () => openDetailModal(rows[+c.dataset.idx])));
 }
 
 function getReportColumns(corp) {
   const base = [
-    { key: 'depart', label: '출발지' }, { key: 'shipType', label: '구분' },
-    { key: 'shipDateText', label: '출하일', cls: 'col-date' },
-    { key: 'loadTime', label: '상차시간' }, { key: 'unloadTime', label: '하차시간' },
-    { key: 'fabOutText', label: 'FAB OUT' }, { key: 'packagingText', label: '포장예정' }
+    { key: 'depart', label: '\uCD9C\uBC1C\uC9C0' }, { key: 'shipType', label: '\uAD6C\uBD84' },
+    { key: 'shipDateText', label: '\uCD9C\uD558\uC77C', cls: 'col-date' },
+    { key: 'loadTime', label: '\uC0C1\uCC28\uC2DC\uAC04' }, { key: 'unloadTime', label: '\uD558\uCC28\uC2DC\uAC04' },
+    { key: 'fabOutText', label: 'FAB OUT' }, { key: 'packagingText', label: '\uD3EC\uC7A5\uC608\uC815' }
   ];
-  if (corp === 'PSK Holdings') base.push({ key: 'sizeNotice', label: '사이즈 전달' }, { key: 'shipRequest', label: '출하의뢰' });
-  base.push({ key: 'customs', label: '통관요청' }, { key: 'terms', label: 'TERMS' }, { key: 'pskDelivery', label: 'PSK배차' }, { key: 'wo', label: 'W/O', cls: 'col-wo' }, { key: 'sn', label: 'S/N' }, { key: 'model', label: '장비명' }, { key: 'exportInfo', label: '수출여부', cls: 'col-export' }, { key: 'forwarder', label: '포워더' }, { key: 'customer', label: '고객사' }, { key: 'manager', label: '담당자' }, { key: 'inv', label: 'INV', cls: 'col-inv' });
+  if (corp === 'PSK Holdings') base.push({ key: 'sizeNotice', label: '\uC0AC\uC774\uC988 \uC804\uB2EC' }, { key: 'shipRequest', label: '\uCD9C\uD558\uC758\uB8B0' });
+  base.push({ key: 'customs', label: '\uD1B5\uAD00\uC694\uCCAD' }, { key: 'terms', label: 'TERMS' }, { key: 'pskDelivery', label: 'PSK\uBC30\uCC28' }, { key: 'wo', label: 'W/O', cls: 'col-wo' }, { key: 'sn', label: 'S/N' }, { key: 'model', label: '\uC7A5\uBE44\uBA85' }, { key: 'exportInfo', label: '\uC218\uCD9C\uC5EC\uBD80', cls: 'col-export' }, { key: 'forwarder', label: '\uD3EC\uC6CC\uB354' }, { key: 'customer', label: '\uACE0\uAC1D\uC0AC' }, { key: 'manager', label: '\uB2F4\uB2F9\uC790' }, { key: 'inv', label: 'INV', cls: 'col-inv' });
   return base;
 }
 
@@ -580,7 +575,7 @@ function buildReportTable(corp, rows) {
     body += `<tr class="${rowCls}">`;
     cols.forEach(c => {
       let cls = c.cls || '';
-      if (c.key === 'exportInfo' && item.shipType === '이관') cls += (cls ? ' ' : '') + 'transfer';
+      if (c.key === 'exportInfo' && item.shipType === '\uC774\uAD00') cls += (cls ? ' ' : '') + 'transfer';
       if (c.key === 'inv' && item.invGreen === 'Y') cls += (cls ? ' ' : '') + 'has-inv';
       if (c.key === dateKey) {
         const k = String(item[dateKey] || '');
@@ -602,23 +597,23 @@ function buildReportTable(corp, rows) {
 
 function renderReport(items) {
   if (!items.length) {
-    refs.reportEl.innerHTML = '<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
+    refs.reportEl.innerHTML = '<div class="empty">\uC870\uAC74\uC5D0 \uB9DE\uB294 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</div>';
     return;
   }
   const corpGroups = items.reduce((a, i) => { (a[i.corp] = a[i.corp] || []).push(i); return a; }, {});
   refs.reportEl.innerHTML = reportCorpOrder.filter(c => corpGroups[c] && corpGroups[c].length).map(corp => {
     const deptGroups = corpGroups[corp].reduce((a, item) => {
-      const dep = ((item.depart || '').trim()) || '기타';
+      const dep = ((item.depart || '').trim()) || '\uAE30\uD0C0';
       (a[dep] = a[dep] || []).push(item);
       return a;
     }, {});
     const extraDeps = Object.keys(deptGroups).filter(d => !reportDepartOrder.includes(d)).sort();
     const blocks = [...reportDepartOrder, ...extraDeps].filter(d => deptGroups[d] && deptGroups[d].length).map(dep => {
       const sortedRows = [...deptGroups[dep]].sort(compareReportDateTime);
-      return `<section class="report-block"><div class="report-block-title">${esc(dep)} · ${sortedRows.length}건</div>${buildReportTable(corp, sortedRows)}</section>`;
+      return `<section class="report-block"><div class="report-block-title">${esc(dep)} \u00B7 ${sortedRows.length}\uAC74</div>${buildReportTable(corp, sortedRows)}</section>`;
     }).join('');
-    return `<div class="report-corp"><div class="report-corp-title">${esc(corp)} · ${corpGroups[corp].length}건</div>${blocks}</div>`;
-  }).join('') || '<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
+    return `<div class="report-corp"><div class="report-corp-title">${esc(corp)} \u00B7 ${corpGroups[corp].length}\uAC74</div>${blocks}</div>`;
+  }).join('') || '<div class="empty">\uC870\uAC74\uC5D0 \uB9DE\uB294 \uB370\uC774\uD130\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</div>';
 }
 
 function renderMainView(items) {
@@ -640,10 +635,10 @@ function renderAll() {
   renderPageMetaBar();
   const items = filteredData();
   state.listDate = pickInitialListDate(items, state.listDate);
-  const summaryHtml = `<div class="summary-card"><div class="summary-label">전체 예정 건수</div><div class="summary-value">${items.length}</div></div>`;
+  const summaryHtml = `<div class="summary-card"><div class="summary-label">\uC804\uCCB4 \uC608\uC815 \uAC74\uC218</div><div class="summary-value">${items.length}</div></div>`;
   refs.summaryEl.innerHTML = '';
   refs.summaryInlineEl.innerHTML = summaryHtml;
-  refs.toggleAdvancedFiltersBtn.textContent = state.advancedOpen ? '필터 닫기' : '필터 열기';
+  refs.toggleAdvancedFiltersBtn.textContent = state.advancedOpen ? '\uD544\uD130 \uB2EB\uAE30' : '\uD544\uD130 \uC5F4\uAE30';
   refs.advancedFiltersEl.classList.toggle('hidden', !state.advancedOpen);
   renderMainView(items);
 }
@@ -690,7 +685,6 @@ function bindStaticEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[shipment_viewer_app] DOMContentLoaded');
   initRefs();
   bindStaticEvents();
   renderUserBar();
