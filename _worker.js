@@ -2,7 +2,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 1) API 요청만 직접 처리
+    // 1) API 요청만 직접 처리.
     if (url.pathname.startsWith("/api/")) {
       if (request.method === "OPTIONS") {
         return empty(204, request, env);
