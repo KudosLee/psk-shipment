@@ -34,6 +34,20 @@ function json(data, status, request, env, extraHeaders = {}) {
   });
 }
 
+function jsonWithCookie(data, status, request, env, cookieValue) {
+  const headers = new Headers(corsHeaders(request, env));
+  headers.set("Content-Type", "application/json; charset=utf-8");
+
+  if (cookieValue) {
+    headers.append("Set-Cookie", cookieValue);
+  }
+
+  return new Response(JSON.stringify(data), {
+    status,
+    headers,
+  });
+}
+
 function empty(status, request, env, extraHeaders = {}) {
   return new Response(null, {
     status,
@@ -115,7 +129,7 @@ function buildSessionCookie(token, maxAgeSec = 60 * 60 * 8) {
     "Path=/",
     "HttpOnly",
     "Secure",
-    "SameSite=None",
+    "SameSite=Lax",
     `Max-Age=${maxAgeSec}`,
   ].join("; ");
 }
@@ -126,7 +140,7 @@ function clearSessionCookie() {
     "Path=/",
     "HttpOnly",
     "Secure",
-    "SameSite=None",
+    "SameSite=Lax",
     "Max-Age=0",
   ].join("; ");
 }
@@ -152,16 +166,6 @@ function normalizeShipmentPayload(payload) {
   const meta = root.meta && typeof root.meta === "object" && !Array.isArray(root.meta) ? root.meta : {};
   const data = Array.isArray(root.data) ? root.data : [];
   return { meta, data };
-}
-
-if (url.pathname === '/api/auth/login' && request.method === 'POST') {
-  return new Response(
-    JSON.stringify({ ok: true, step: 'login route reached' }),
-    {
-      status: 200,
-      headers: { 'Content-Type': 'application/json; charset=utf-8' }
-    }
-  );
 }
 
 async function writeAccessLog(env, log) {
@@ -388,102 +392,125 @@ async function handleDebugCookie(request, env) {
 }
 
 async function handleLogin(request, env) {
-  const body = await readJson(request);
-  const username = String(body.username || "").trim();
-  const password = String(body.password || "").trim();
+  try {
+    const body = await readJson(request);
 
-  if (!username || !password) {
-    return json({ ok: false, message: "username/password required" }, 400, request, env);
-  }
+    const username = String(
+      body.username || body.loginId || body.id || ""
+    ).trim();
 
-  const user = await env.DB.prepare(`
-    SELECT id, username, password_hash, role, is_active, display_name
-    FROM users
-    WHERE username = ?
-    LIMIT 1
-  `).bind(username).first();
+    const password = String(
+      body.password || body.loginPassword || ""
+    ).trim();
 
-  if (!user || Number(user.is_active) !== 1) {
-    await writeAccessLog(env, {
-      userId: null,
-      username,
-      action: "LOGIN_FAIL",
-      ip: getClientIp(request),
-      userAgent: getUserAgent(request),
-      success: false,
-      memo: "user not found or inactive",
-    });
-    return json({ ok: false, message: "INVALID_LOGIN" }, 401, request, env);
-  }
+    if (!username || !password) {
+      return json({ ok: false, message: "username/password required" }, 400, request, env);
+    }
 
-  const ok = await verifyPassword(password, user.password_hash);
-  if (!ok) {
+    const user = await env.DB.prepare(`
+      SELECT id, username, password_hash, role, is_active, display_name
+      FROM users
+      WHERE username = ?
+      LIMIT 1
+    `).bind(username).first();
+
+    if (!user || Number(user.is_active) !== 1) {
+      await writeAccessLog(env, {
+        userId: null,
+        username,
+        action: "LOGIN_FAIL",
+        ip: getClientIp(request),
+        userAgent: getUserAgent(request),
+        success: false,
+        memo: "user not found or inactive",
+      });
+      return json({ ok: false, message: "INVALID_LOGIN" }, 401, request, env);
+    }
+
+    const ok = await verifyPassword(password, user.password_hash);
+    if (!ok) {
+      await writeAccessLog(env, {
+        userId: user.id,
+        username: user.username,
+        action: "LOGIN_FAIL",
+        ip: getClientIp(request),
+        userAgent: getUserAgent(request),
+        success: false,
+        memo: "wrong password",
+      });
+      return json({ ok: false, message: "INVALID_LOGIN" }, 401, request, env);
+    }
+
+    const rawToken = makeRandomString(32) + "." + makeRandomString(16);
+    const tokenHash = await sha256Hex(rawToken);
+
+    await env.DB.prepare(`
+      INSERT INTO sessions (
+        user_id,
+        session_token_hash,
+        expires_at,
+        ip,
+        user_agent,
+        last_seen_at
+      ) VALUES (
+        ?,
+        ?,
+        datetime('now', '+8 hours'),
+        ?,
+        ?,
+        CURRENT_TIMESTAMP
+      )
+    `).bind(
+      user.id,
+      tokenHash,
+      getClientIp(request),
+      getUserAgent(request)
+    ).run();
+
+    await env.DB.prepare(`
+      UPDATE users
+      SET last_login_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(user.id).run();
+
     await writeAccessLog(env, {
       userId: user.id,
       username: user.username,
-      action: "LOGIN_FAIL",
+      action: "LOGIN_SUCCESS",
       ip: getClientIp(request),
       userAgent: getUserAgent(request),
-      success: false,
-      memo: "wrong password",
+      success: true,
+      memo: null,
     });
-    return json({ ok: false, message: "INVALID_LOGIN" }, 401, request, env);
+
+    return jsonWithCookie(
+      {
+        ok: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          displayName: user.display_name || user.username,
+        }
+      },
+      200,
+      request,
+      env,
+      buildSessionCookie(rawToken)
+    );
+  } catch (e) {
+    return json(
+      {
+        ok: false,
+        message: "LOGIN_ROUTE_ERROR",
+        error: String(e && e.message ? e.message : e),
+      },
+      500,
+      request,
+      env
+    );
   }
-
-  const rawToken = makeRandomString(32) + "." + makeRandomString(16);
-  const tokenHash = await sha256Hex(rawToken);
-
-  await env.DB.prepare(`
-    INSERT INTO sessions (
-      user_id,
-      session_token_hash,
-      expires_at,
-      ip,
-      user_agent,
-      last_seen_at
-    ) VALUES (
-      ?,
-      ?,
-      datetime('now', '+8 hours'),
-      ?,
-      ?,
-      CURRENT_TIMESTAMP
-    )
-  `).bind(
-    user.id,
-    tokenHash,
-    getClientIp(request),
-    getUserAgent(request)
-  ).run();
-
-  await env.DB.prepare(`
-    UPDATE users
-    SET last_login_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `).bind(user.id).run();
-
-  await writeAccessLog(env, {
-    userId: user.id,
-    username: user.username,
-    action: "LOGIN_SUCCESS",
-    ip: getClientIp(request),
-    userAgent: getUserAgent(request),
-    success: true,
-    memo: null,
-  });
-
-  return json({
-    ok: true,
-    user: {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-      displayName: user.display_name || user.username,
-    }
-  }, 200, request, env, {
-    "Set-Cookie": buildSessionCookie(rawToken),
-  });
 }
 
 async function handleMe(request, env) {
@@ -533,9 +560,13 @@ async function handleLogout(request, env) {
     }
   }
 
-  return json({ ok: true }, 200, request, env, {
-    "Set-Cookie": clearSessionCookie(),
-  });
+  return jsonWithCookie(
+    { ok: true },
+    200,
+    request,
+    env,
+    clearSessionCookie()
+  );
 }
 
 async function handleAdminLogs(request, env) {
@@ -723,7 +754,7 @@ export default {
     const url = new URL(request.url);
     console.log("FETCH_START", request.url);
     console.log("PATHNAME", new URL(request.url).pathname);
-    // 1) API 요청만 직접 처리.
+
     if (url.pathname.startsWith("/api/")) {
       if (request.method === "OPTIONS") {
         return empty(204, request, env);
@@ -738,6 +769,10 @@ export default {
           .prepare("SELECT datetime('now') AS now_time, 'DB_OK' AS status")
           .first();
         return json({ ok: true, db: row }, 200, request, env);
+      }
+
+      if (url.pathname === "/api/debug-cookie" && request.method === "GET") {
+        return handleDebugCookie(request, env);
       }
 
       if (url.pathname === "/api/auth/login" && request.method === "POST") {
@@ -771,7 +806,6 @@ export default {
       return json({ ok: false, message: "NOT_FOUND" }, 404, request, env);
     }
 
-    // 2) API가 아니면 정적 파일 반환
     return env.ASSETS.fetch(request);
   }
 };
