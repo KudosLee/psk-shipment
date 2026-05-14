@@ -55,16 +55,18 @@
     const reloadBtn = document.getElementById("reloadBtn");
 
     function getAuthToken() {
-      return (
-        localStorage.getItem("token") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("access_token") ||
-        sessionStorage.getItem("token") ||
-        sessionStorage.getItem("authToken") ||
-        sessionStorage.getItem("access_token") ||
-        ""
-      );
-    }
+  return (
+    localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+    localStorage.getItem("token") ||
+    localStorage.getItem("authToken") ||
+    localStorage.getItem("access_token") ||
+    sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("authToken") ||
+    sessionStorage.getItem("access_token") ||
+    ""
+  );
+}
 
     function setStatus(message, type) {
       statusMessage.textContent = message;
@@ -135,3 +137,4 @@
   </script>
 </body>
 </html>
+
