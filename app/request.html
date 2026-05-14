@@ -1,0 +1,123 @@
+<!-- PSK Shipment Viewer 신규 요청 입력 화면 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>출하 요청 입력</title>
+  <link rel="stylesheet" href="./css/request.css" />
+</head>
+<body>
+  <main class="page-wrap">
+    <section class="card">
+      <div class="page-header">
+        <div>
+          <p class="eyebrow">PSK Shipment Viewer</p>
+          <h1>출하 요청 입력</h1>
+        </div>
+        <span class="badge">DEV</span>
+      </div>
+
+      <form id="requestForm" class="request-form">
+        <div class="form-grid">
+          <label class="field">
+            <span>요청 제목</span>
+            <input
+              type="text"
+              id="request_title"
+              name="request_title"
+              placeholder="예: 5월 3주차 출하 요청"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>장비명</span>
+            <input
+              type="text"
+              id="equipment_name"
+              name="equipment_name"
+              placeholder="예: EXIM"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>W/O</span>
+            <input
+              type="text"
+              id="wo"
+              name="wo"
+              placeholder="예: WO-250515-001"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>S/N</span>
+            <input
+              type="text"
+              id="sn"
+              name="sn"
+              placeholder="예: SN123456"
+              required
+            />
+          </label>
+
+          <label class="field field-full">
+            <span>고객사</span>
+            <input
+              type="text"
+              id="customer_name"
+              name="customer_name"
+              placeholder="예: PSK"
+              required
+            />
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button type="button" class="btn btn-secondary" id="resetBtn">
+            초기화
+          </button>
+          <button type="submit" class="btn btn-primary">
+            임시저장
+          </button>
+        </div>
+
+        <p id="statusMessage" class="status-message"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("requestForm");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusMessage = document.getElementById("statusMessage");
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const payload = {
+        request_title: document.getElementById("request_title").value.trim(),
+        equipment_name: document.getElementById("equipment_name").value.trim(),
+        wo: document.getElementById("wo").value.trim(),
+        sn: document.getElementById("sn").value.trim(),
+        customer_name: document.getElementById("customer_name").value.trim()
+      };
+
+      console.log("request payload:", payload);
+
+      statusMessage.textContent =
+        "1단계 화면 확인 완료. 다음 단계에서 DEV API 저장을 연결합니다.";
+      statusMessage.className = "status-message success";
+    });
+
+    resetBtn.addEventListener("click", function () {
+      form.reset();
+      statusMessage.textContent = "";
+      statusMessage.className = "status-message";
+    });
+  </script>
+</body>
+</html>
