@@ -1,4 +1,4 @@
-<!-- PSK Shipment Viewer 신규 요청 입력 화면 -->
+﻿<!-- PSK Shipment Viewer 신규 요청 입력 화면 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -22,67 +22,33 @@
         <div class="form-grid">
           <label class="field">
             <span>요청 제목</span>
-            <input
-              type="text"
-              id="request_title"
-              name="request_title"
-              placeholder="예: 5월 3주차 출하 요청"
-              required
-            />
+            <input type="text" id="request_title" name="request_title" placeholder="예: 5월 3주차 출하 요청" required />
           </label>
 
           <label class="field">
             <span>장비명</span>
-            <input
-              type="text"
-              id="equipment_name"
-              name="equipment_name"
-              placeholder="예: EXIM"
-              required
-            />
+            <input type="text" id="equipment_name" name="equipment_name" placeholder="예: EXIM" required />
           </label>
 
           <label class="field">
             <span>W/O</span>
-            <input
-              type="text"
-              id="wo"
-              name="wo"
-              placeholder="예: WO-250515-001"
-              required
-            />
+            <input type="text" id="wo" name="wo" placeholder="예: WO-250515-001" required />
           </label>
 
           <label class="field">
             <span>S/N</span>
-            <input
-              type="text"
-              id="sn"
-              name="sn"
-              placeholder="예: SN123456"
-              required
-            />
+            <input type="text" id="sn" name="sn" placeholder="예: SN123456" required />
           </label>
 
           <label class="field field-full">
             <span>고객사</span>
-            <input
-              type="text"
-              id="customer_name"
-              name="customer_name"
-              placeholder="예: PSK"
-              required
-            />
+            <input type="text" id="customer_name" name="customer_name" placeholder="예: PSK" required />
           </label>
         </div>
 
         <div class="button-row">
-          <button type="button" class="btn btn-secondary" id="resetBtn">
-            초기화
-          </button>
-          <button type="submit" class="btn btn-primary">
-            임시저장
-          </button>
+          <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
+          <button type="submit" class="btn btn-primary">임시저장</button>
         </div>
 
         <p id="statusMessage" class="status-message"></p>
@@ -91,12 +57,38 @@
   </main>
 
   <script>
+    const API_BASE_URL = "https://psk-shipment-api-dev.ms1743.workers.dev";
+
     const form = document.getElementById("requestForm");
     const resetBtn = document.getElementById("resetBtn");
     const statusMessage = document.getElementById("statusMessage");
 
-    form.addEventListener("submit", function (event) {
+    function getAuthToken() {
+      return (
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("access_token") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("access_token") ||
+        ""
+      );
+    }
+
+    function setStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = "status-message " + type;
+    }
+
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
+
+      const token = getAuthToken();
+
+      if (!token) {
+        setStatus("로그인 토큰을 찾을 수 없습니다. 먼저 DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
 
       const payload = {
         request_title: document.getElementById("request_title").value.trim(),
@@ -106,11 +98,32 @@
         customer_name: document.getElementById("customer_name").value.trim()
       };
 
-      console.log("request payload:", payload);
+      try {
+        setStatus("저장 중입니다...", "success");
 
-      statusMessage.textContent =
-        "1단계 화면 확인 완료. 다음 단계에서 DEV API 저장을 연결합니다.";
-      statusMessage.className = "status-message success";
+        const response = await fetch(API_BASE_URL + "/api/v2/requests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        console.log("POST /api/v2/requests result:", result);
+
+        if (!response.ok || result.ok === false) {
+          setStatus(result.message || "저장 실패", "error");
+          return;
+        }
+
+        setStatus("임시저장 완료되었습니다.", "success");
+      } catch (error) {
+        console.error(error);
+        setStatus("API 호출 중 오류가 발생했습니다. 콘솔을 확인하세요.", "error");
+      }
     });
 
     resetBtn.addEventListener("click", function () {
