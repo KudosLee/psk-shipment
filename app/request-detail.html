@@ -1,5 +1,4 @@
-﻿<!-- PSK Shipment Viewer 요청 상세 화면 -->
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -8,73 +7,186 @@
   <link rel="stylesheet" href="./css/request.css" />
 </head>
 <body>
-  <main class="page-wrap">
+  <main class="page">
+    <section class="page-header">
+      <div>
+        <h1>출하 요청 상세</h1>
+        <p>요청 상세 내용을 확인합니다.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" onclick="goList()">목록</button>
+      </div>
+    </section>
+
     <section class="card">
-      <div class="page-header">
-        <div>
-          <p class="eyebrow">PSK Shipment Viewer</p>
-          <h1>출하 요청 상세</h1>
+      <div class="detail-title-row">
+        <h2 id="requestTitle">불러오는 중...</h2>
+        <span id="statusBadge" class="status-badge status-draft">draft</span>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">요청 ID</span>
+          <strong id="requestId">-</strong>
         </div>
-        <span class="badge">DEV</span>
+        <div class="detail-item">
+          <span class="label">장비명</span>
+          <strong id="equipmentName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">W/O</span>
+          <strong id="wo">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">S/N</span>
+          <strong id="sn">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">고객사</span>
+          <strong id="customerName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">작성일</span>
+          <strong id="createdAt">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>첨부파일</h2>
+        <span class="muted">PDF / 사진 업로드 예정</span>
       </div>
 
-      <div class="button-row" style="justify-content: space-between; margin-top: 0;">
-        <button type="button" class="btn btn-secondary" onclick="location.href='./my-requests.html'">목록으로</button>
-        <button type="button" class="btn btn-primary" onclick="location.href='./request.html'">새 요청</button>
+      <div class="upload-box">
+        <input type="file" id="attachmentInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        <button type="button" class="btn-primary" onclick="uploadAttachments()">업로드</button>
       </div>
 
-      <p id="statusMessage" class="status-message"></p>
+      <p class="muted">
+        첨부파일 기능은 현재 화면 틀만 준비된 상태입니다. 실제 저장 기능은 추후 R2 연동 후 활성화됩니다.
+      </p>
 
-      <div id="detailArea" class="form-grid" style="margin-top: 20px;"></div>
+      <div id="attachmentList" class="attachment-list">
+        <div class="empty-box">등록된 첨부파일이 없습니다.</div>
+      </div>
     </section>
   </main>
 
   <script>
-    const detailArea = document.getElementById("detailArea");
-    const statusMessage = document.getElementById("statusMessage");
+    const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
 
-    function safe(value) {
-      return value == null || value === "" ? "-" : String(value);
+    function getAuthToken() {
+      return (
+        localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("access_token") ||
+        sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("access_token") ||
+        ""
+      );
     }
 
-    function addField(label, value) {
-      const box = document.createElement("div");
-      box.className = "field";
-      box.innerHTML = `
-        <span>${label}</span>
-        <div style="min-height:44px; border:1px solid #d1d5db; border-radius:10px; padding:11px 12px; background:#f9fafb; font-size:15px;">
-          ${safe(value)}
-        </div>
-      `;
-      detailArea.appendChild(box);
+    function getRequestId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("request_id") || params.get("id") || sessionStorage.getItem("selected_request_id") || "";
     }
 
-    function renderDetail() {
-      const raw = sessionStorage.getItem("PSK_SELECTED_REQUEST");
+    function setMessage(text, type) {
+      const el = document.getElementById("message");
+      el.textContent = text || "";
+      el.className = "message";
+      if (type) el.classList.add(type);
+    }
 
-      if (!raw) {
-        statusMessage.textContent = "상세 데이터가 없습니다. 목록에서 다시 선택하세요.";
-        statusMessage.className = "status-message error";
+    function safeText(value) {
+      return value === null || value === undefined || value === "" ? "-" : String(value);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString("ko-KR", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function setStatusBadge(status) {
+      const value = status || "draft";
+      const badge = document.getElementById("statusBadge");
+      badge.textContent = value;
+      badge.className = "status-badge status-" + value;
+    }
+
+    function fillDetail(data) {
+      const request = data.request || data.data || data;
+
+      document.getElementById("requestTitle").textContent = safeText(request.request_title || request.title);
+      document.getElementById("requestId").textContent = safeText(request.id || request.request_id);
+      document.getElementById("equipmentName").textContent = safeText(request.equipment_name);
+      document.getElementById("wo").textContent = safeText(request.wo);
+      document.getElementById("sn").textContent = safeText(request.sn);
+      document.getElementById("customerName").textContent = safeText(request.customer_name);
+      document.getElementById("createdAt").textContent = formatDate(request.created_at);
+      setStatusBadge(request.status);
+    }
+
+    async function loadDetail() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("요청 ID를 찾을 수 없습니다. 목록에서 다시 진입하세요.", "error");
         return;
       }
 
-      const item = JSON.parse(raw);
+      document.getElementById("requestId").textContent = requestId;
 
-      addField("요청 제목", item.request_title);
-      addField("장비명", item.equipment_name);
-      addField("W/O", item.wo);
-      addField("S/N", item.sn);
-      addField("고객사", item.customer_name);
-      addField("상태", item.status);
-      addField("요청 ID", item.id || item.request_id);
-      addField("생성일", item.created_at);
-      addField("수정일", item.updated_at);
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
 
-      statusMessage.textContent = "상세 조회 완료";
-      statusMessage.className = "status-message success";
+      try {
+        const res = await fetch(`${API_BASE}/api/v2/requests/${encodeURIComponent(requestId)}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.message || `상세 조회 실패: HTTP ${res.status}`);
+        }
+
+        fillDetail(data);
+        setMessage("");
+      } catch (err) {
+        console.error(err);
+        setMessage(err.message || "상세 조회 중 오류가 발생했습니다.", "error");
+      }
     }
 
-    renderDetail();
+    function uploadAttachments() {
+      setMessage("첨부파일 업로드 기능은 준비 중입니다. R2 연동 후 활성화됩니다.", "info");
+    }
+
+    function goList() {
+      window.location.href = "./my-requests.html";
+    }
+
+    loadDetail();
   </script>
 </body>
 </html>
