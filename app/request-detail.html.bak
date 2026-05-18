@@ -15,7 +15,6 @@
       </div>
       <div class="header-actions">
         <button type="button" class="btn-secondary" onclick="goList()">목록</button>
-        <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
       </div>
     </section>
 
@@ -126,11 +125,6 @@
       const badge = document.getElementById("statusBadge");
       badge.textContent = value;
       badge.className = "status-badge status-" + value;
-
-      const editBtn = document.getElementById("editBtn");
-      if (editBtn) {
-        editBtn.style.display = ["draft", "rejected"].includes(String(value).toLowerCase()) ? "inline-flex" : "none";
-      }
     }
 
     function fillDetail(data) {
@@ -143,7 +137,7 @@
       document.getElementById("sn").textContent = safeText(request.sn);
       document.getElementById("customerName").textContent = safeText(request.customer_name);
       document.getElementById("createdAt").textContent = formatDate(request.created_at);
-      setStatusBadge(request.request_status || request.status);
+      setStatusBadge(request.status);
     }
 
     async function loadDetail() {
@@ -192,19 +186,7 @@
       window.location.href = "./my-requests.html";
     }
 
-    function goEdit() {
-      const requestId = getRequestId();
-
-      if (!requestId) {
-        alert("request_id가 없습니다.");
-        return;
-      }
-
-      window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
-    }
-
     loadDetail();
   </script>
 </body>
 </html>
-

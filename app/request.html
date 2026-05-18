@@ -13,9 +13,9 @@
       <div class="page-header">
         <div>
           <p class="eyebrow">PSK Shipment Viewer</p>
-          <h1>출하 요청 입력</h1>
+          <h1 id="pageTitle">출하 요청 입력</h1>
         </div>
-        <span class="badge">DEV</span>
+        <span id="modeBadge" class="badge">DEV</span>
       </div>
 
       <form id="requestForm" class="request-form">
@@ -48,7 +48,7 @@
 
         <div class="button-row">
           <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
-          <button type="submit" class="btn btn-primary">임시저장</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">임시저장</button>
         </div>
 
         <p id="statusMessage" class="status-message"></p>
@@ -62,6 +62,89 @@
     const form = document.getElementById("requestForm");
     const resetBtn = document.getElementById("resetBtn");
     const statusMessage = document.getElementById("statusMessage");
+const submitBtn = document.getElementById("submitBtn");
+
+let currentRequestId = "";
+let isEditMode = false;
+let loadedRequest = null;
+
+function getUrlParam(name) {
+  return new URLSearchParams(window.location.search).get(name) || "";
+}
+
+function setFieldValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value === null || value === undefined ? "" : String(value);
+}
+
+function getFieldValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : "";
+}
+
+function applyEditModeUi() {
+  if (!isEditMode) return;
+
+  document.title = "출하 요청 수정";
+  document.getElementById("pageTitle").textContent = "출하 요청 수정";
+  document.getElementById("modeBadge").textContent = "EDIT";
+  submitBtn.textContent = "수정 저장";
+  resetBtn.textContent = "불러온 값으로 복원";
+}
+
+async function loadEditData() {
+  const token = getAuthToken();
+
+  if (!token) {
+    setStatus("로그인 토큰을 찾을 수 없습니다. 먼저 DEV 로그인 후 다시 시도하세요.", "error");
+    return;
+  }
+
+  if (!currentRequestId) {
+    setStatus("수정할 요청 ID가 없습니다. 목록에서 다시 진입하세요.", "error");
+    return;
+  }
+
+  try {
+    setStatus("기존 요청 정보를 불러오는 중입니다...", "success");
+
+    const response = await fetch(API_BASE_URL + "/api/v2/requests/" + encodeURIComponent(currentRequestId), {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.ok === false) {
+      setStatus(result.message || "상세 조회 실패", "error");
+      return;
+    }
+
+    const item = result.request || result.data || result;
+    loadedRequest = item;
+
+    const status = String(item.request_status || item.status || "draft").toLowerCase();
+
+    if (status !== "draft" && status !== "rejected") {
+      submitBtn.disabled = true;
+      setStatus("현재 상태에서는 수정할 수 없습니다. draft 또는 rejected 상태만 수정 가능합니다.", "error");
+      return;
+    }
+
+    setFieldValue("request_title", item.request_title || item.title || "");
+    setFieldValue("equipment_name", item.equipment_name || "");
+    setFieldValue("wo", item.wo || "");
+    setFieldValue("sn", item.sn || "");
+    setFieldValue("customer_name", item.customer_name || "");
+
+    setStatus("", "");
+  } catch (error) {
+    console.error(error);
+    setStatus("상세 조회 중 오류가 발생했습니다. 콘솔을 확인하세요.", "error");
+  }
+}
 
     function getAuthToken() {
   return (
@@ -93,18 +176,24 @@
       }
 
       const payload = {
-        request_title: document.getElementById("request_title").value.trim(),
-        equipment_name: document.getElementById("equipment_name").value.trim(),
-        wo: document.getElementById("wo").value.trim(),
-        sn: document.getElementById("sn").value.trim(),
-        customer_name: document.getElementById("customer_name").value.trim()
+        request_title: getFieldValue("request_title"),
+        equipment_name: getFieldValue("equipment_name"),
+        wo: getFieldValue("wo"),
+        sn: getFieldValue("sn"),
+        customer_name: getFieldValue("customer_name")
       };
 
       try {
         setStatus("저장 중입니다...", "success");
 
-        const response = await fetch(API_BASE_URL + "/api/v2/requests", {
-          method: "POST",
+        const apiUrl = isEditMode
+          ? API_BASE_URL + "/api/v2/requests/" + encodeURIComponent(currentRequestId)
+          : API_BASE_URL + "/api/v2/requests";
+
+        const apiMethod = isEditMode ? "PATCH" : "POST";
+
+        const response = await fetch(apiUrl, {
+          method: apiMethod,
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
@@ -114,14 +203,26 @@
 
         const result = await response.json();
 
-        console.log("POST /api/v2/requests result:", result);
+        console.log("save request result:", result);
 
         if (!response.ok || result.ok === false) {
           setStatus(result.message || "저장 실패", "error");
           return;
         }
 
-        setStatus("임시저장 완료되었습니다.", "success");
+        setStatus(isEditMode ? "수정 저장 완료되었습니다." : "임시저장 완료되었습니다.", "success");
+
+        const savedRequestId =
+          currentRequestId ||
+          (result.item && result.item.request_id) ||
+          result.request_id ||
+          "";
+
+        if (savedRequestId) {
+          setTimeout(function () {
+            window.location.href = "./request-detail.html?request_id=" + encodeURIComponent(savedRequestId);
+          }, 500);
+        }
       } catch (error) {
         console.error(error);
         setStatus("API 호출 중 오류가 발생했습니다. 콘솔을 확인하세요.", "error");
@@ -129,11 +230,30 @@
     });
 
     resetBtn.addEventListener("click", function () {
+      if (isEditMode && loadedRequest) {
+        setFieldValue("request_title", loadedRequest.request_title || loadedRequest.title || "");
+        setFieldValue("equipment_name", loadedRequest.equipment_name || "");
+        setFieldValue("wo", loadedRequest.wo || "");
+        setFieldValue("sn", loadedRequest.sn || "");
+        setFieldValue("customer_name", loadedRequest.customer_name || "");
+        setStatus("불러온 값으로 복원했습니다.", "success");
+        return;
+      }
+
       form.reset();
       statusMessage.textContent = "";
       statusMessage.className = "status-message";
     });
+      currentRequestId = getUrlParam("request_id") || getUrlParam("id");
+    isEditMode = getUrlParam("mode") === "edit" || !!currentRequestId;
+
+    applyEditModeUi();
+
+    if (isEditMode) {
+      loadEditData();
+    }
   </script>
 </body>
 </html>
+
 
