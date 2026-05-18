@@ -16,9 +16,6 @@
       <div class="header-actions">
         <button type="button" class="btn-secondary" onclick="goList()">목록</button>
         <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
-        <button type="button" id="submitBtn" class="btn-primary" onclick="changeRequestStatus('submit')" style="display:none;">제출</button>
-        <button type="button" id="approveBtn" class="btn-primary" onclick="changeRequestStatus('approve')" style="display:none;">승인</button>
-        <button type="button" id="rejectBtn" class="btn-secondary" onclick="changeRequestStatus('reject')" style="display:none;">반려</button>
       </div>
     </section>
 
@@ -81,7 +78,6 @@
 
   <script>
     const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
-    let currentRequestStatus = "";
 
     function getAuthToken() {
       return (
@@ -126,21 +122,15 @@
     }
 
     function setStatusBadge(status) {
-      const value = String(status || "draft").toLowerCase();
+      const value = status || "draft";
       const badge = document.getElementById("statusBadge");
       badge.textContent = value;
       badge.className = "status-badge status-" + value;
-      currentRequestStatus = value;
 
       const editBtn = document.getElementById("editBtn");
-      const submitBtn = document.getElementById("submitBtn");
-      const approveBtn = document.getElementById("approveBtn");
-      const rejectBtn = document.getElementById("rejectBtn");
-
-      if (editBtn) editBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
-      if (submitBtn) submitBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
-      if (approveBtn) approveBtn.style.display = value === "submitted" ? "inline-flex" : "none";
-      if (rejectBtn) rejectBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+      if (editBtn) {
+        editBtn.style.display = ["draft", "rejected"].includes(String(value).toLowerCase()) ? "inline-flex" : "none";
+      }
     }
 
     function fillDetail(data) {
@@ -210,71 +200,11 @@
         return;
       }
 
-      if (!["draft", "rejected"].includes(currentRequestStatus)) {
-        alert("draft 또는 rejected 상태만 수정할 수 있습니다.");
-        return;
-      }
-
       window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
-    }
-
-    async function changeRequestStatus(action) {
-      const requestId = getRequestId();
-      const token = getAuthToken();
-
-      if (!requestId) {
-        setMessage("request_id가 없습니다.", "error");
-        return;
-      }
-
-      if (!token) {
-        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
-        return;
-      }
-
-      const actionLabelMap = {
-        submit: "제출",
-        approve: "승인",
-        reject: "반려"
-      };
-
-      const actionLabel = actionLabelMap[action] || action;
-
-      if (!confirm(actionLabel + " 처리하시겠습니까?")) {
-        return;
-      }
-
-      try {
-        setMessage(actionLabel + " 처리 중입니다...", "info");
-
-        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/" + action, {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({})
-        });
-
-        const result = await response.json().catch(function () {
-          return {};
-        });
-
-        if (!response.ok || result.ok === false) {
-          throw new Error(result.message || actionLabel + " 처리 실패");
-        }
-
-        setMessage(actionLabel + " 처리 완료되었습니다.", "success");
-        loadDetail();
-      } catch (error) {
-        console.error(error);
-        setMessage(error.message || actionLabel + " 처리 중 오류가 발생했습니다.", "error");
-      }
     }
 
     loadDetail();
   </script>
 </body>
 </html>
-
 
