@@ -12,28 +12,23 @@
       gap: 12px;
       margin-top: 12px;
     }
-
     .ops-field {
       display: grid;
       gap: 6px;
       min-width: 0;
     }
-
     .ops-field.full {
       grid-column: 1 / -1;
     }
-
     .ops-field label {
       font-size: 12px;
       font-weight: 800;
       color: #6b7280;
     }
-
     .ops-field label.required::after {
       content: " *";
       color: #dc2626;
     }
-
     .ops-input,
     .ops-select,
     .ops-textarea {
@@ -45,89 +40,26 @@
       background: #fff;
       color: #111827;
     }
-
     .ops-textarea {
       min-height: 80px;
       resize: vertical;
       line-height: 1.5;
     }
-
     .ops-actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       margin-top: 14px;
     }
-
     .ops-help {
       margin-top: 8px;
       font-size: 12px;
       color: #6b7280;
       line-height: 1.5;
     }
-
-    .change-request-box {
-      display: none;
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      background: #fafbfc;
-    }
-
-    .change-request-box.active {
-      display: block;
-    }
-
-    .change-preview {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .change-field {
-      display: grid;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .change-field.full {
-      grid-column: 1 / -1;
-    }
-
-    .change-field label {
-      font-size: 12px;
-      font-weight: 800;
-      color: #6b7280;
-    }
-
-    .change-field input,
-    .change-field textarea,
-    .change-field select {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      padding: 10px 11px;
-      font-size: 13px;
-      background: #fff;
-      color: #111827;
-    }
-
-    .change-field textarea {
-      min-height: 80px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
     @media (max-width: 720px) {
-      .ops-form,
-      .change-preview {
+      .ops-form {
         grid-template-columns: 1fr;
-      }
-
-      .change-field.full {
-        grid-column: auto;
       }
     }
   </style>
@@ -142,8 +74,6 @@
       <div class="header-actions">
         <button type="button" class="btn-secondary" onclick="goList()">목록</button>
         <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
-        <button type="button" id="changeRequestBtn" class="btn-secondary" onclick="openChangeRequestBox()" style="display:none;">수정요청</button>
-        <button type="button" id="deleteRequestBtn" class="btn-secondary" onclick="createDeleteRequest()" style="display:none;">삭제요청</button>
         <button type="button" id="submitBtn" class="btn-primary" onclick="changeRequestStatus('submit')" style="display:none;">제출</button>
         <button type="button" id="reviewBtn" class="btn-primary" onclick="changeRequestStatus('review')" style="display:none;">검토완료</button>
         <button type="button" id="confirmBtn" class="btn-primary" onclick="changeRequestStatus('confirm')" style="display:none;">최종확정</button>
@@ -183,57 +113,6 @@
         <div class="detail-item">
           <span class="label">작성일</span>
           <strong id="createdAt">-</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="card" id="changeRequestCard" style="display:none;">
-      <div class="section-title-row">
-        <h2>수정 / 삭제 요청</h2>
-        <span class="muted">확정 전후 상태에서 관리자의 승인 처리가 필요한 변경 요청을 등록합니다.</span>
-      </div>
-
-      <div class="ops-help">
-        draft 또는 rejected 상태는 직접 수정할 수 있습니다.
-        submitted / reviewed / confirmed 상태에서는 수정요청 또는 삭제요청으로 관리자 승인을 받아야 합니다.
-      </div>
-
-      <div id="changeRequestBox" class="change-request-box">
-        <div class="change-preview">
-          <div class="change-field">
-            <label for="changeRequestTitle">요청 제목</label>
-            <input id="changeRequestTitle" type="text" />
-          </div>
-
-          <div class="change-field">
-            <label for="changeEquipmentName">장비명</label>
-            <input id="changeEquipmentName" type="text" />
-          </div>
-
-          <div class="change-field">
-            <label for="changeWo">W/O</label>
-            <input id="changeWo" type="text" />
-          </div>
-
-          <div class="change-field">
-            <label for="changeSn">S/N</label>
-            <input id="changeSn" type="text" />
-          </div>
-
-          <div class="change-field">
-            <label for="changeCustomerName">고객사</label>
-            <input id="changeCustomerName" type="text" />
-          </div>
-
-          <div class="change-field full">
-            <label for="changeReason">수정 사유</label>
-            <textarea id="changeReason" placeholder="수정이 필요한 사유를 입력하세요."></textarea>
-          </div>
-        </div>
-
-        <div class="ops-actions">
-          <button type="button" class="btn-primary" onclick="createUpdateRequest()">수정요청 등록</button>
-          <button type="button" class="btn-secondary" onclick="closeChangeRequestBox()">닫기</button>
         </div>
       </div>
     </section>
@@ -281,12 +160,12 @@
 
         <div class="ops-field">
           <label class="required" for="opLoadTime">상차시간</label>
-          <input id="opLoadTime" class="ops-input" type="time" step="1800" />
+          <input id="opLoadTime" class="ops-input" type="time" />
         </div>
 
         <div class="ops-field">
           <label for="opUnloadTime">하차시간</label>
-          <input id="opUnloadTime" class="ops-input" type="time" step="1800" />
+          <input id="opUnloadTime" class="ops-input" type="time" />
         </div>
 
         <div class="ops-field">
@@ -390,34 +269,6 @@
 
     <section class="card">
       <div class="section-title-row">
-        <h2>변경 이력</h2>
-        <button type="button" class="btn-secondary" onclick="loadChangeHistory()">이력 새로고침</button>
-      </div>
-
-      <div class="table-scroll">
-        <table class="request-table">
-          <thead>
-            <tr>
-              <th>요청일시</th>
-              <th>요청유형</th>
-              <th>상태</th>
-              <th>요청자</th>
-              <th>사유</th>
-              <th>처리자</th>
-              <th>처리일시</th>
-            </tr>
-          </thead>
-          <tbody id="changeHistoryBody">
-            <tr>
-              <td colspan="7">변경 이력을 불러오는 중입니다.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="section-title-row">
         <h2>첨부파일</h2>
         <span class="muted">PDF / 사진 업로드 예정</span>
       </div>
@@ -440,7 +291,6 @@
   <script>
     const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
     let currentRequestStatus = "";
-    let currentRequestData = null;
 
     function getAuthToken() {
       return (
@@ -459,15 +309,6 @@
     function getRequestId() {
       const params = new URLSearchParams(window.location.search);
       return params.get("request_id") || params.get("id") || sessionStorage.getItem("selected_request_id") || "";
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
     }
 
     function setMessage(text, type) {
@@ -507,22 +348,6 @@
       });
     }
 
-    function getStatusClass(status) {
-      const value = String(status || "").toLowerCase();
-      if (value === "approved" || value === "confirmed") return "status-approved";
-      if (value === "rejected") return "status-rejected";
-      if (value === "pending" || value === "submitted" || value === "reviewed") return "status-submitted";
-      return "status-draft";
-    }
-
-    function normalizeItems(payload) {
-      if (Array.isArray(payload)) return payload;
-      if (Array.isArray(payload.items)) return payload.items;
-      if (Array.isArray(payload.data)) return payload.data;
-      if (Array.isArray(payload.rows)) return payload.rows;
-      return [];
-    }
-
     function setStatusBadge(status) {
       const value = String(status || "draft").toLowerCase();
       const badge = document.getElementById("statusBadge");
@@ -536,20 +361,12 @@
       const confirmBtn = document.getElementById("confirmBtn");
       const rejectBtn = document.getElementById("rejectBtn");
       const operationalCard = document.getElementById("operationalCard");
-      const changeRequestBtn = document.getElementById("changeRequestBtn");
-      const deleteRequestBtn = document.getElementById("deleteRequestBtn");
-      const changeRequestCard = document.getElementById("changeRequestCard");
 
       if (editBtn) editBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
       if (submitBtn) submitBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
       if (reviewBtn) reviewBtn.style.display = value === "submitted" ? "inline-flex" : "none";
       if (confirmBtn) confirmBtn.style.display = value === "reviewed" ? "inline-flex" : "none";
       if (rejectBtn) rejectBtn.style.display = ["submitted", "reviewed"].includes(value) ? "inline-flex" : "none";
-
-      const canRequestChange = ["submitted", "reviewed", "confirmed"].includes(value);
-      if (changeRequestBtn) changeRequestBtn.style.display = canRequestChange ? "inline-flex" : "none";
-      if (deleteRequestBtn) deleteRequestBtn.style.display = canRequestChange ? "inline-flex" : "none";
-      if (changeRequestCard) changeRequestCard.style.display = canRequestChange ? "block" : "none";
 
       if (operationalCard) {
         operationalCard.style.display = ["reviewed", "confirmed"].includes(value) ? "block" : "none";
@@ -558,7 +375,6 @@
 
     function fillDetail(data) {
       const request = data.request || data.data || data;
-      currentRequestData = request;
 
       document.getElementById("requestTitle").textContent = safeText(request.request_title || request.title);
       document.getElementById("requestId").textContent = safeText(request.id || request.request_id);
@@ -568,16 +384,6 @@
       document.getElementById("customerName").textContent = safeText(request.customer_name);
       document.getElementById("createdAt").textContent = formatDate(request.created_at);
       setStatusBadge(request.request_status || request.status);
-      fillChangeRequestForm(request);
-    }
-
-    function fillChangeRequestForm(request) {
-      setValue("changeRequestTitle", request.request_title || request.title);
-      setValue("changeEquipmentName", request.equipment_name);
-      setValue("changeWo", request.wo);
-      setValue("changeSn", request.sn);
-      setValue("changeCustomerName", request.customer_name);
-      setValue("changeReason", "");
     }
 
     async function loadDetail() {
@@ -616,8 +422,6 @@
         if (["reviewed", "confirmed"].includes(currentRequestStatus)) {
           await loadOperationalDetails();
         }
-
-        await loadChangeHistory();
       } catch (err) {
         console.error(err);
         setMessage(err.message || "상세 조회 중 오류가 발생했습니다.", "error");
@@ -646,204 +450,6 @@
       }
 
       window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
-    }
-
-    function openChangeRequestBox() {
-      const box = document.getElementById("changeRequestBox");
-      if (box) box.classList.add("active");
-    }
-
-    function closeChangeRequestBox() {
-      const box = document.getElementById("changeRequestBox");
-      if (box) box.classList.remove("active");
-    }
-
-    function getChangedRequestPayload() {
-      return {
-        request_title: getValue("changeRequestTitle"),
-        equipment_name: getValue("changeEquipmentName"),
-        wo: getValue("changeWo"),
-        sn: getValue("changeSn"),
-        customer_name: getValue("changeCustomerName")
-      };
-    }
-
-    async function createUpdateRequest() {
-      const requestId = getRequestId();
-      const token = getAuthToken();
-      const reason = getValue("changeReason");
-
-      if (!requestId) {
-        setMessage("request_id가 없습니다.", "error");
-        return;
-      }
-
-      if (!token) {
-        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
-        return;
-      }
-
-      if (!reason) {
-        alert("수정 사유를 입력하세요.");
-        return;
-      }
-
-      if (!confirm("수정요청을 등록하시겠습니까?")) {
-        return;
-      }
-
-      try {
-        setMessage("수정요청 등록 중입니다...", "info");
-
-        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-requests", {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            request_type: "update",
-            reason: reason,
-            after_json: getChangedRequestPayload()
-          })
-        });
-
-        const result = await response.json().catch(function () {
-          return {};
-        });
-
-        if (!response.ok || result.ok === false) {
-          throw new Error(result.message || "수정요청 등록 실패");
-        }
-
-        setMessage("수정요청이 등록되었습니다.", "success");
-        closeChangeRequestBox();
-        await loadChangeHistory();
-      } catch (error) {
-        console.error(error);
-        setMessage(error.message || "수정요청 등록 중 오류가 발생했습니다.", "error");
-      }
-    }
-
-    async function createDeleteRequest() {
-      const requestId = getRequestId();
-      const token = getAuthToken();
-
-      if (!requestId) {
-        setMessage("request_id가 없습니다.", "error");
-        return;
-      }
-
-      if (!token) {
-        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
-        return;
-      }
-
-      const reason = prompt("삭제요청 사유를 입력하세요.");
-
-      if (reason === null) {
-        return;
-      }
-
-      if (!reason.trim()) {
-        alert("삭제요청 사유를 입력해야 합니다.");
-        return;
-      }
-
-      if (!confirm("삭제요청을 등록하시겠습니까?")) {
-        return;
-      }
-
-      try {
-        setMessage("삭제요청 등록 중입니다...", "info");
-
-        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-requests", {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            request_type: "delete",
-            reason: reason.trim()
-          })
-        });
-
-        const result = await response.json().catch(function () {
-          return {};
-        });
-
-        if (!response.ok || result.ok === false) {
-          throw new Error(result.message || "삭제요청 등록 실패");
-        }
-
-        setMessage("삭제요청이 등록되었습니다.", "success");
-        await loadChangeHistory();
-      } catch (error) {
-        console.error(error);
-        setMessage(error.message || "삭제요청 등록 중 오류가 발생했습니다.", "error");
-      }
-    }
-
-    function renderChangeHistory(items) {
-      const tbody = document.getElementById("changeHistoryBody");
-
-      if (!items.length) {
-        tbody.innerHTML = '<tr><td colspan="7">등록된 변경 이력이 없습니다.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = items.map(function (item) {
-        const typeText = item.request_type === "delete" ? "삭제요청" : "수정요청";
-        const statusText = item.status || item.request_status || "pending";
-        const requester = item.requester_name || item.created_by_name || item.created_by || item.requested_by || "-";
-        const approver = item.approved_by_name || item.reviewed_by_name || item.approved_by || item.reviewed_by || "-";
-        const handledAt = item.approved_at || item.reviewed_at || item.updated_at || "";
-
-        return `
-          <tr>
-            <td>${escapeHtml(formatDate(item.created_at))}</td>
-            <td>${escapeHtml(typeText)}</td>
-            <td><span class="status-badge ${getStatusClass(statusText)}">${escapeHtml(statusText)}</span></td>
-            <td>${escapeHtml(requester)}</td>
-            <td class="text-ellipsis" title="${escapeHtml(item.reason || "")}">${escapeHtml(item.reason || "-")}</td>
-            <td>${escapeHtml(approver)}</td>
-            <td>${escapeHtml(formatDate(handledAt))}</td>
-          </tr>
-        `;
-      }).join("");
-    }
-
-    async function loadChangeHistory() {
-      const requestId = getRequestId();
-      const token = getAuthToken();
-      const tbody = document.getElementById("changeHistoryBody");
-
-      if (!requestId || !token || !tbody) return;
-
-      try {
-        tbody.innerHTML = '<tr><td colspan="7">변경 이력을 불러오는 중입니다.</td></tr>';
-
-        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-history", {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + token
-          }
-        });
-
-        const result = await response.json().catch(function () {
-          return {};
-        });
-
-        if (!response.ok || result.ok === false) {
-          throw new Error(result.message || "변경 이력 조회 실패");
-        }
-
-        renderChangeHistory(normalizeItems(result));
-      } catch (error) {
-        console.error(error);
-        tbody.innerHTML = '<tr><td colspan="7">변경 이력 조회 실패</td></tr>';
-      }
     }
 
     function getOperationalPayload() {
@@ -892,16 +498,6 @@
       }
 
       return true;
-    }
-
-    function validateHalfHourTime(value, label) {
-      if (!value) return true;
-      const parts = value.split(":");
-      if (parts.length < 2) return false;
-      const minute = Number(parts[1]);
-      if (minute === 0 || minute === 30) return true;
-      alert(label + "은 30분 단위로 입력해야 합니다.");
-      return false;
     }
 
     function fillOperationalDetails(payload) {
@@ -979,14 +575,6 @@
       }
 
       if (!validateOperationalRequired()) {
-        return false;
-      }
-
-      if (!validateHalfHourTime(getValue("opLoadTime"), "상차시간")) {
-        return false;
-      }
-
-      if (!validateHalfHourTime(getValue("opUnloadTime"), "하차시간")) {
         return false;
       }
 
