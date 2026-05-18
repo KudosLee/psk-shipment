@@ -240,23 +240,6 @@
 
       const actionLabel = actionLabelMap[action] || action;
 
-      let requestBody = {};
-
-      if (action === "reject") {
-        const rejectReason = prompt("반려 사유를 입력하세요.");
-
-        if (rejectReason === null) {
-          return;
-        }
-
-        if (!rejectReason.trim()) {
-          alert("반려 사유를 입력해야 합니다.");
-          return;
-        }
-
-        requestBody.reason = rejectReason.trim();
-      }
-
       if (!confirm(actionLabel + " 처리하시겠습니까?")) {
         return;
       }
@@ -270,7 +253,7 @@
             "Authorization": "Bearer " + token,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(requestBody)
+          body: JSON.stringify({})
         });
 
         const result = await response.json().catch(function () {
@@ -293,6 +276,5 @@
   </script>
 </body>
 </html>
-
 
 
