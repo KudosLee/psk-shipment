@@ -1899,6 +1899,7 @@
         html += '<button class="user-menu-item" id="menuAdminNotify" type="button">알림 현황</button>';
         html += '<button class="user-menu-item" id="menuAdminUsers" type="button">사용자 관리</button>';
         html += '<button class="user-menu-item" id="menuAdminIp" type="button">로그인 IP 현황</button>';
+        html += '<button class="user-menu-item" id="menuAdminChangeRequests" type="button">수정/삭제 요청 관리</button>';
       }
       html += '</div></div>';
       html += '<button class="logout-btn" id="logoutBtn" type="button">로그아웃</button>';
@@ -1917,6 +1918,7 @@
       const menuAdminNotify = $('menuAdminNotify');
       const menuAdminUsers = $('menuAdminUsers');
       const menuAdminIp = $('menuAdminIp');
+      const menuAdminChangeRequests = document.getElementById('menuAdminChangeRequests');
 
       if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
@@ -1949,6 +1951,13 @@
       if (menuAdminNotify) menuAdminNotify.addEventListener('click', openAdminNotificationManager);
       if (menuAdminUsers) menuAdminUsers.addEventListener('click', openAdminUserManager);
       if (menuAdminIp) menuAdminIp.addEventListener('click', openAdminIpSummary);
+      if (menuAdminRequests) menuAdminRequests.addEventListener('click', () => {
+        window.location.href = './app/admin-requests.html';
+      });
+      if (menuAdminChangeRequests) menuAdminChangeRequests.addEventListener('click', () => {
+        window.location.href = './app/change-requests.html';
+      });
+      if (menuAdminNotify) menuAdminNotify.addEventListener('click', openAdminNotificationManager);
     }
 
     function renderAll() {
