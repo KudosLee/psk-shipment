@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>출하 요청 상세</title>
+  <link rel="stylesheet" href="./css/request.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="page-header">
+      <div>
+        <h1>출하 요청 상세</h1>
+        <p>요청 상세 내용을 확인합니다.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" onclick="goList()">목록</button>
+        <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
+        <button type="button" id="submitBtn" class="btn-primary" onclick="changeRequestStatus('submit')" style="display:none;">제출</button>
+        <button type="button" id="approveBtn" class="btn-primary" onclick="changeRequestStatus('approve')" style="display:none;">승인</button>
+        <button type="button" id="rejectBtn" class="btn-secondary" onclick="changeRequestStatus('reject')" style="display:none;">반려</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="detail-title-row">
+        <h2 id="requestTitle">불러오는 중...</h2>
+        <span id="statusBadge" class="status-badge status-draft">draft</span>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">요청 ID</span>
+          <strong id="requestId">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">장비명</span>
+          <strong id="equipmentName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">W/O</span>
+          <strong id="wo">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">S/N</span>
+          <strong id="sn">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">고객사</span>
+          <strong id="customerName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">작성일</span>
+          <strong id="createdAt">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>첨부파일</h2>
+        <span class="muted">PDF / 사진 업로드 예정</span>
+      </div>
+
+      <div class="upload-box">
+        <input type="file" id="attachmentInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        <button type="button" class="btn-primary" onclick="uploadAttachments()">업로드</button>
+      </div>
+
+      <p class="muted">
+        첨부파일 기능은 현재 화면 틀만 준비된 상태입니다. 실제 저장 기능은 추후 R2 연동 후 활성화됩니다.
+      </p>
+
+      <div id="attachmentList" class="attachment-list">
+        <div class="empty-box">등록된 첨부파일이 없습니다.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
+    let currentRequestStatus = "";
+
+    function getAuthToken() {
+      return (
+        localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("access_token") ||
+        sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("access_token") ||
+        ""
+      );
+    }
+
+    function getRequestId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("request_id") || params.get("id") || sessionStorage.getItem("selected_request_id") || "";
+    }
+
+    function setMessage(text, type) {
+      const el = document.getElementById("message");
+      el.textContent = text || "";
+      el.className = "message";
+      if (type) el.classList.add(type);
+    }
+
+    function safeText(value) {
+      return value === null || value === undefined || value === "" ? "-" : String(value);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString("ko-KR", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function setStatusBadge(status) {
+      const value = String(status || "draft").toLowerCase();
+      const badge = document.getElementById("statusBadge");
+      badge.textContent = value;
+      badge.className = "status-badge status-" + value;
+      currentRequestStatus = value;
+
+      const editBtn = document.getElementById("editBtn");
+      const submitBtn = document.getElementById("submitBtn");
+      const approveBtn = document.getElementById("approveBtn");
+      const rejectBtn = document.getElementById("rejectBtn");
+
+      if (editBtn) editBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
+      if (submitBtn) submitBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
+      if (approveBtn) approveBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+      if (rejectBtn) rejectBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+    }
+
+    function fillDetail(data) {
+      const request = data.request || data.data || data;
+
+      document.getElementById("requestTitle").textContent = safeText(request.request_title || request.title);
+      document.getElementById("requestId").textContent = safeText(request.id || request.request_id);
+      document.getElementById("equipmentName").textContent = safeText(request.equipment_name);
+      document.getElementById("wo").textContent = safeText(request.wo);
+      document.getElementById("sn").textContent = safeText(request.sn);
+      document.getElementById("customerName").textContent = safeText(request.customer_name);
+      document.getElementById("createdAt").textContent = formatDate(request.created_at);
+      setStatusBadge(request.request_status || request.status);
+    }
+
+    async function loadDetail() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("요청 ID를 찾을 수 없습니다. 목록에서 다시 진입하세요.", "error");
+        return;
+      }
+
+      document.getElementById("requestId").textContent = requestId;
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v2/requests/${encodeURIComponent(requestId)}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.message || `상세 조회 실패: HTTP ${res.status}`);
+        }
+
+        fillDetail(data);
+        setMessage("");
+      } catch (err) {
+        console.error(err);
+        setMessage(err.message || "상세 조회 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    function uploadAttachments() {
+      setMessage("첨부파일 업로드 기능은 준비 중입니다. R2 연동 후 활성화됩니다.", "info");
+    }
+
+    function goList() {
+      window.location.href = "./my-requests.html";
+    }
+
+    function goEdit() {
+      const requestId = getRequestId();
+
+      if (!requestId) {
+        alert("request_id가 없습니다.");
+        return;
+      }
+
+      if (!["draft", "rejected"].includes(currentRequestStatus)) {
+        alert("draft 또는 rejected 상태만 수정할 수 있습니다.");
+        return;
+      }
+
+      window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
+    }
+
+    async function changeRequestStatus(action) {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      const actionLabelMap = {
+        submit: "제출",
+        approve: "승인",
+        reject: "반려"
+      };
+
+      const actionLabel = actionLabelMap[action] || action;
+
+      let requestBody = {};
+
+      if (action === "reject") {
+        const rejectReason = prompt("반려 사유를 입력하세요.");
+
+        if (rejectReason === null) {
+          return;
+        }
+
+        if (!rejectReason.trim()) {
+          alert("반려 사유를 입력해야 합니다.");
+          return;
+        }
+
+        requestBody.reason = rejectReason.trim();
+      }
+
+      if (!confirm(actionLabel + " 처리하시겠습니까?")) {
+        return;
+      }
+
+      try {
+        setMessage(actionLabel + " 처리 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/" + action, {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || actionLabel + " 처리 실패");
+        }
+
+        setMessage(actionLabel + " 처리 완료되었습니다.", "success");
+        loadDetail();
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || actionLabel + " 처리 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    loadDetail();
+  </script>
+</body>
+</html>
+
+
+

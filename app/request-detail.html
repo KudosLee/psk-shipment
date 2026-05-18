@@ -1,10 +1,68 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>출하 요청 상세</title>
   <link rel="stylesheet" href="./css/request.css" />
+  <style>
+    .ops-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .ops-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+    .ops-field.full {
+      grid-column: 1 / -1;
+    }
+    .ops-field label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6b7280;
+    }
+    .ops-field label.required::after {
+      content: " *";
+      color: #dc2626;
+    }
+    .ops-input,
+    .ops-select,
+    .ops-textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #111827;
+    }
+    .ops-textarea {
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .ops-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .ops-help {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+    @media (max-width: 720px) {
+      .ops-form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="page">
@@ -17,7 +75,8 @@
         <button type="button" class="btn-secondary" onclick="goList()">목록</button>
         <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
         <button type="button" id="submitBtn" class="btn-primary" onclick="changeRequestStatus('submit')" style="display:none;">제출</button>
-        <button type="button" id="approveBtn" class="btn-primary" onclick="changeRequestStatus('approve')" style="display:none;">승인</button>
+        <button type="button" id="reviewBtn" class="btn-primary" onclick="changeRequestStatus('review')" style="display:none;">검토완료</button>
+        <button type="button" id="confirmBtn" class="btn-primary" onclick="changeRequestStatus('confirm')" style="display:none;">최종확정</button>
         <button type="button" id="rejectBtn" class="btn-secondary" onclick="changeRequestStatus('reject')" style="display:none;">반려</button>
       </div>
     </section>
@@ -55,6 +114,156 @@
           <span class="label">작성일</span>
           <strong id="createdAt">-</strong>
         </div>
+      </div>
+    </section>
+
+    <section class="card" id="operationalCard" style="display:none;">
+      <div class="section-title-row">
+        <h2>관리자 운영 보완 정보</h2>
+        <span class="muted">reviewed 상태부터 최종 확정 전까지 입력합니다.</span>
+      </div>
+
+      <div class="ops-help">
+        법인, 담당자, 출발지, 도착지, 출하일, 상차시간, 출하구분은 최종 확정 전 필수로 입력합니다.
+        TERMS / 포워더 / INV No.는 선택 입력입니다.
+      </div>
+
+      <div class="ops-form">
+        <div class="ops-field">
+          <label class="required" for="opCorp">법인</label>
+          <select id="opCorp" class="ops-select">
+            <option value="">선택</option>
+            <option value="PSK">PSK</option>
+            <option value="PSK Holdings">PSK Holdings</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opManagerName">담당자</label>
+          <input id="opManagerName" class="ops-input" type="text" placeholder="담당자명" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opDepartSite">출발지</label>
+          <input id="opDepartSite" class="ops-input" type="text" placeholder="예: PSK HQ, 2사업장, 업체명" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opArrivalSite">도착지 / 하차지</label>
+          <input id="opArrivalSite" class="ops-input" type="text" placeholder="도착지 또는 하차지" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opShipDate">출하일</label>
+          <input id="opShipDate" class="ops-input" type="date" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opLoadTime">상차시간</label>
+          <input id="opLoadTime" class="ops-input" type="time" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opUnloadTime">하차시간</label>
+          <input id="opUnloadTime" class="ops-input" type="time" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opFabOut">FAB OUT</label>
+          <input id="opFabOut" class="ops-input" type="date" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opPackagingStatus">포장상태</label>
+          <select id="opPackagingStatus" class="ops-select">
+            <option value="">선택</option>
+            <option value="미정">미정</option>
+            <option value="예정">예정</option>
+            <option value="완료">완료</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opShipRequest">출하의뢰</label>
+          <select id="opShipRequest" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opCustomsStatus">통관요청</label>
+          <select id="opCustomsStatus" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opPskDelivery">PSK 배차</label>
+          <select id="opPskDelivery" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opShipMode">출하구분</label>
+          <select id="opShipMode" class="ops-select">
+            <option value="">선택</option>
+            <option value="내수">내수</option>
+            <option value="항공">항공</option>
+            <option value="해상">해상</option>
+            <option value="이관">이관</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opShipType">작업구분</label>
+          <input id="opShipType" class="ops-input" type="text" placeholder="예: 제품, 부분품, 이관" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opVendorName">조립업체 / 업체명</label>
+          <input id="opVendorName" class="ops-input" type="text" placeholder="해당 시 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opModuleText">부분품 정보</label>
+          <input id="opModuleText" class="ops-input" type="text" placeholder="해당 시 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opTerms">TERMS</label>
+          <input id="opTerms" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opForwarder">포워더</label>
+          <input id="opForwarder" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opInvNo">INV No.</label>
+          <input id="opInvNo" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field full">
+          <label for="opRemark">비고</label>
+          <textarea id="opRemark" class="ops-textarea" placeholder="운영 특이사항을 입력하세요."></textarea>
+        </div>
+      </div>
+
+      <div class="ops-actions">
+        <button type="button" id="saveOperationalBtn" class="btn-primary" onclick="saveOperationalDetails()">운영정보 저장</button>
+        <button type="button" id="reloadOperationalBtn" class="btn-secondary" onclick="loadOperationalDetails()">다시 불러오기</button>
       </div>
     </section>
 
@@ -113,6 +322,20 @@
       return value === null || value === undefined || value === "" ? "-" : String(value);
     }
 
+    function valueOrEmpty(value) {
+      return value === null || value === undefined ? "" : String(value);
+    }
+
+    function setValue(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.value = valueOrEmpty(value);
+    }
+
+    function getValue(id) {
+      const el = document.getElementById(id);
+      return el ? String(el.value || "").trim() : "";
+    }
+
     function formatDate(value) {
       if (!value) return "-";
       const d = new Date(value);
@@ -134,13 +357,20 @@
 
       const editBtn = document.getElementById("editBtn");
       const submitBtn = document.getElementById("submitBtn");
-      const approveBtn = document.getElementById("approveBtn");
+      const reviewBtn = document.getElementById("reviewBtn");
+      const confirmBtn = document.getElementById("confirmBtn");
       const rejectBtn = document.getElementById("rejectBtn");
+      const operationalCard = document.getElementById("operationalCard");
 
       if (editBtn) editBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
       if (submitBtn) submitBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
-      if (approveBtn) approveBtn.style.display = value === "submitted" ? "inline-flex" : "none";
-      if (rejectBtn) rejectBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+      if (reviewBtn) reviewBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+      if (confirmBtn) confirmBtn.style.display = value === "reviewed" ? "inline-flex" : "none";
+      if (rejectBtn) rejectBtn.style.display = ["submitted", "reviewed"].includes(value) ? "inline-flex" : "none";
+
+      if (operationalCard) {
+        operationalCard.style.display = ["reviewed", "confirmed"].includes(value) ? "block" : "none";
+      }
     }
 
     function fillDetail(data) {
@@ -188,6 +418,10 @@
 
         fillDetail(data);
         setMessage("");
+
+        if (["reviewed", "confirmed"].includes(currentRequestStatus)) {
+          await loadOperationalDetails();
+        }
       } catch (err) {
         console.error(err);
         setMessage(err.message || "상세 조회 중 오류가 발생했습니다.", "error");
@@ -218,6 +452,161 @@
       window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
     }
 
+    function getOperationalPayload() {
+      return {
+        corp: getValue("opCorp"),
+        manager_name: getValue("opManagerName"),
+        depart_site: getValue("opDepartSite"),
+        arrival_site: getValue("opArrivalSite"),
+        ship_date: getValue("opShipDate"),
+        load_time: getValue("opLoadTime"),
+        unload_time: getValue("opUnloadTime"),
+        fab_out: getValue("opFabOut"),
+        packaging_status: getValue("opPackagingStatus"),
+        ship_request: getValue("opShipRequest"),
+        customs_status: getValue("opCustomsStatus"),
+        psk_delivery: getValue("opPskDelivery"),
+        ship_mode: getValue("opShipMode"),
+        ship_type: getValue("opShipType"),
+        vendor_name: getValue("opVendorName"),
+        module_text: getValue("opModuleText"),
+        terms: getValue("opTerms"),
+        forwarder: getValue("opForwarder"),
+        inv_no: getValue("opInvNo"),
+        remark: getValue("opRemark")
+      };
+    }
+
+    function validateOperationalRequired() {
+      const required = [
+        ["opCorp", "법인"],
+        ["opManagerName", "담당자"],
+        ["opDepartSite", "출발지"],
+        ["opArrivalSite", "도착지 / 하차지"],
+        ["opShipDate", "출하일"],
+        ["opLoadTime", "상차시간"],
+        ["opShipMode", "출하구분"]
+      ];
+
+      const missing = required
+        .filter(([id]) => !getValue(id))
+        .map(([, label]) => label);
+
+      if (missing.length) {
+        alert("필수 운영 정보를 입력하세요.\n\n- " + missing.join("\n- "));
+        return false;
+      }
+
+      return true;
+    }
+
+    function fillOperationalDetails(payload) {
+      const item = payload.operational || payload.item || payload.data || payload.detail || payload || {};
+
+      setValue("opCorp", item.corp);
+      setValue("opManagerName", item.manager_name || item.managerName);
+      setValue("opDepartSite", item.depart_site || item.departSite);
+      setValue("opArrivalSite", item.arrival_site || item.arrivalSite);
+      setValue("opShipDate", item.ship_date || item.shipDate);
+      setValue("opLoadTime", item.load_time || item.loadTime);
+      setValue("opUnloadTime", item.unload_time || item.unloadTime);
+      setValue("opFabOut", item.fab_out || item.fabOut);
+      setValue("opPackagingStatus", item.packaging_status || item.packagingStatus);
+      setValue("opShipRequest", item.ship_request || item.shipRequest);
+      setValue("opCustomsStatus", item.customs_status || item.customsStatus);
+      setValue("opPskDelivery", item.psk_delivery || item.pskDelivery);
+      setValue("opShipMode", item.ship_mode || item.shipMode);
+      setValue("opShipType", item.ship_type || item.shipType);
+      setValue("opVendorName", item.vendor_name || item.vendorName);
+      setValue("opModuleText", item.module_text || item.moduleText);
+      setValue("opTerms", item.terms);
+      setValue("opForwarder", item.forwarder);
+      setValue("opInvNo", item.inv_no || item.invNo);
+      setValue("opRemark", item.remark);
+    }
+
+    async function loadOperationalDetails() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId || !token) return;
+
+      try {
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/operational", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "운영정보 조회 실패");
+        }
+
+        fillOperationalDetails(result);
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "운영정보 조회 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    async function saveOperationalDetails(options) {
+      const opt = options || {};
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return false;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return false;
+      }
+
+      if (!["reviewed", "confirmed"].includes(currentRequestStatus)) {
+        setMessage("reviewed 또는 confirmed 상태에서만 운영정보를 저장할 수 있습니다.", "error");
+        return false;
+      }
+
+      if (!validateOperationalRequired()) {
+        return false;
+      }
+
+      try {
+        if (!opt.silent) setMessage("운영정보 저장 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/operational", {
+          method: "PUT",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(getOperationalPayload())
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "운영정보 저장 실패");
+        }
+
+        if (!opt.silent) setMessage("운영정보가 저장되었습니다.", "success");
+        return true;
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "운영정보 저장 중 오류가 발생했습니다.", "error");
+        return false;
+      }
+    }
+
     async function changeRequestStatus(action) {
       const requestId = getRequestId();
       const token = getAuthToken();
@@ -234,13 +623,19 @@
 
       const actionLabelMap = {
         submit: "제출",
-        approve: "승인",
+        review: "검토완료",
+        confirm: "최종확정",
         reject: "반려"
       };
 
       const actionLabel = actionLabelMap[action] || action;
 
       let requestBody = {};
+
+      if (action === "confirm") {
+        const saved = await saveOperationalDetails({ silent: true });
+        if (!saved) return;
+      }
 
       if (action === "reject") {
         const rejectReason = prompt("반려 사유를 입력하세요.");
@@ -282,7 +677,7 @@
         }
 
         setMessage(actionLabel + " 처리 완료되었습니다.", "success");
-        loadDetail();
+        await loadDetail();
       } catch (error) {
         console.error(error);
         setMessage(error.message || actionLabel + " 처리 중 오류가 발생했습니다.", "error");
@@ -293,6 +688,3 @@
   </script>
 </body>
 </html>
-
-
-
