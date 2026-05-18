@@ -225,7 +225,7 @@ async function loadEditData() {
         }
       } catch (error) {
         console.error(error);
-        setStatus(error.message || "API 호출 중 오류가 발생했습니다.", "error");
+        setStatus("API 호출 중 오류가 발생했습니다. 콘솔을 확인하세요.", "error");
       }
     });
 
@@ -255,6 +255,5 @@ async function loadEditData() {
   </script>
 </body>
 </html>
-
 
 
