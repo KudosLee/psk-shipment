@@ -140,48 +140,6 @@
       }).join("");
     }
 
-    async function checkAdminAccess() {
-      const token = getAuthToken();
-
-      if (!token) {
-        setMessage("로그인이 필요합니다.", "error");
-        document.getElementById("requestTableBody").innerHTML =
-          '<tr><td colspan="9" class="empty-row">로그인이 필요합니다.</td></tr>';
-        return false;
-      }
-
-      try {
-        const response = await fetch(API_BASE + "/api/auth/me", {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + token
-          }
-        });
-
-        const result = await response.json().catch(() => ({}));
-
-        if (!response.ok || result.ok === false) {
-          throw new Error(result.message || "권한 확인 실패");
-        }
-
-        const user = result.user || {};
-        const role = String(user.role || "").toLowerCase();
-
-        if (role !== "admin") {
-          setMessage("관리자만 접근할 수 있습니다.", "error");
-          document.getElementById("requestTableBody").innerHTML =
-            '<tr><td colspan="9" class="empty-row">관리자만 접근할 수 있습니다.</td></tr>';
-          return false;
-        }
-
-        return true;
-      } catch (error) {
-        console.error(error);
-        setMessage(error.message || "권한 확인 중 오류가 발생했습니다.", "error");
-        return false;
-      }
-    }
-
     async function loadRequests(status) {
       const token = getAuthToken();
 
@@ -215,13 +173,7 @@
       }
     }
 
-    (async function init() {
-      const ok = await checkAdminAccess();
-      if (ok) {
-        loadRequests("submitted");
-      }
-    })();
+    loadRequests("submitted");
   </script>
 </body>
 </html>
-
