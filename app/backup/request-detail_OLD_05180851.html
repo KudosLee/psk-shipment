@@ -702,11 +702,9 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            change_type: "update",
             request_type: "update",
             reason: reason,
-            after_json: getChangedRequestPayload(),
-            after_data: getChangedRequestPayload()
+            after_json: getChangedRequestPayload()
           })
         });
 
@@ -766,7 +764,6 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            change_type: "delete",
             request_type: "delete",
             reason: reason.trim()
           })
@@ -797,8 +794,7 @@
       }
 
       tbody.innerHTML = items.map(function (item) {
-        const historyType = item.change_type || item.request_type || item.type || "";
-        const typeText = historyType === "delete" ? "삭제요청" : "수정요청";
+        const typeText = item.request_type === "delete" ? "삭제요청" : "수정요청";
         const statusText = item.status || item.request_status || "pending";
         const requester = item.requester_name || item.created_by_name || item.created_by || item.requested_by || "-";
         const approver = item.approved_by_name || item.reviewed_by_name || item.approved_by || item.reviewed_by || "-";
