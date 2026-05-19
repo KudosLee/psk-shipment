@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>확정 출하 조회</title>
+  <link rel="stylesheet" href="/app/css/request.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="page-header">
+      <div>
+        <h1>확정 출하 조회</h1>
+        <p>승인 확정된 출하 건만 표시합니다.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="title-button" onclick="location.href='/index.html'">메인</button>
+        <button type="button" class="title-button" onclick="location.href='/app/my-requests.html'">요청 목록</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <button type="button" class="title-button" onclick="loadConfirmedShipments()">새로고침</button>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <div class="table-scroll">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>출하일</th>
+              <th>상차시간</th>
+              <th>법인</th>
+              <th>출하구분</th>
+              <th>장비명</th>
+              <th>W/O</th>
+              <th>S/N</th>
+              <th>고객사</th>
+              <th>출발지</th>
+              <th>도착지</th>
+              <th>담당자</th>
+              <th>포워더</th>
+              <th>INV No.</th>
+              <th>FAB OUT</th>
+              <th>포장상태</th>
+              <th>통관</th>
+              <th>PSK 배차</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="confirmedBody">
+            <tr>
+              <td colspan="18">조회 중입니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+<script>
+const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
+
+function getAuthToken() {
+  return (
+    sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+    localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+    sessionStorage.getItem("token") ||
+    localStorage.getItem("token") ||
+    ""
+  );
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function setMessage(text, isError = false) {
+  const el = document.getElementById("message");
+  el.textContent = text || "";
+  el.className = isError ? "message error" : "message";
+}
+
+function renderRows(items) {
+  const tbody = document.getElementById("confirmedBody");
+
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="18">확정된 출하 건이 없습니다.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = items.map(row => `
+    <tr>
+      <td>${escapeHtml(row.shipment_date)}</td>
+      <td>${escapeHtml(row.loading_time)}</td>
+      <td>${escapeHtml(row.corporation)}</td>
+      <td>${escapeHtml(row.shipment_type)}</td>
+      <td>${escapeHtml(row.equipment_name)}</td>
+      <td>${escapeHtml(row.wo)}</td>
+      <td>${escapeHtml(row.sn)}</td>
+      <td>${escapeHtml(row.customer_name)}</td>
+      <td>${escapeHtml(row.departure_place)}</td>
+      <td>${escapeHtml(row.arrival_place)}</td>
+      <td>${escapeHtml(row.manager_name)}</td>
+      <td>${escapeHtml(row.forwarder)}</td>
+      <td>${escapeHtml(row.invoice_no)}</td>
+      <td>${escapeHtml(row.fab_out)}</td>
+      <td>${escapeHtml(row.packing_status)}</td>
+      <td>${escapeHtml(row.customs_status)}</td>
+      <td>${escapeHtml(row.psk_dispatch)}</td>
+      <td>${escapeHtml(row.memo)}</td>
+    </tr>
+  `).join("");
+}
+
+async function loadConfirmedShipments() {
+  const token = getAuthToken();
+
+  if (!token) {
+    setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", true);
+    return;
+  }
+
+  try {
+    setMessage("확정 출하 정보를 조회 중입니다.");
+
+    const res = await fetch(`${API_BASE}/api/v2/confirmed-shipments`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "확정 출하 조회 실패");
+    }
+
+    renderRows(data.items || []);
+    setMessage(`총 ${data.items.length}건 조회되었습니다.`);
+  } catch (err) {
+    document.getElementById("confirmedBody").innerHTML =
+      `<tr><td colspan="18">조회 실패</td></tr>`;
+    setMessage(err.message, true);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadConfirmedShipments);
+</script>
+</body>
+</html>

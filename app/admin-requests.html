@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>승인 요청 관리</title>
+  <link rel="stylesheet" href="./css/request.css" />
+</head>
+
+<body>
+  <main class="page">
+    <section class="page-header">
+      <div>
+        <h1>승인 요청 관리</h1>
+        <p>제출된 출하 요청을 승인 또는 반려합니다.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" onclick="goHome()">메인</button>
+        <button type="button" class="btn-secondary" onclick="loadRequests('submitted')">승인 대기</button>
+        <button type="button" class="btn-secondary" onclick="loadRequests('all')">전체</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="message" class="message"></div>
+
+      <div class="table-scroll">
+        <table class="request-table">
+          <thead>
+            <tr>
+              <th>상태</th>
+              <th>요청 제목</th>
+              <th>작성자</th>
+              <th>장비명</th>
+              <th>W/O</th>
+              <th>S/N</th>
+              <th>고객사</th>
+              <th>작성일</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="requestTableBody">
+            <tr>
+              <td colspan="9" class="empty-row">불러오는 중...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
+
+    function getAuthToken() {
+      return (
+        localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("access_token") ||
+        sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("access_token") ||
+        ""
+      );
+    }
+
+    function setMessage(text, type) {
+      const el = document.getElementById("message");
+      el.textContent = text || "";
+      el.className = "message";
+      if (type) el.classList.add(type);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function safeText(value) {
+      return value === null || value === undefined || value === "" ? "-" : String(value);
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString("ko-KR", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function buildStatusBadge(status) {
+      const value = String(status || "draft").toLowerCase();
+      return `<span class="status-badge status-${escapeHtml(value)}">${escapeHtml(value)}</span>`;
+    }
+
+    function goHome() {
+      window.location.href = "../";
+    }
+
+    function goDetail(requestId) {
+      window.location.href = "./request-detail.html?request_id=" + encodeURIComponent(requestId);
+    }
+
+    function renderRows(items) {
+      const tbody = document.getElementById("requestTableBody");
+
+      if (!Array.isArray(items) || !items.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-row">표시할 요청이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(item => {
+        const requestId = item.request_id || "";
+        return `
+          <tr>
+            <td>${buildStatusBadge(item.request_status)}</td>
+            <td class="text-ellipsis" title="${escapeHtml(safeText(item.request_title))}">${escapeHtml(safeText(item.request_title))}</td>
+            <td>${escapeHtml(safeText(item.created_by_username))}</td>
+            <td class="text-ellipsis" title="${escapeHtml(safeText(item.equipment_name))}">${escapeHtml(safeText(item.equipment_name))}</td>
+            <td>${escapeHtml(safeText(item.wo))}</td>
+            <td>${escapeHtml(safeText(item.sn))}</td>
+            <td class="text-ellipsis" title="${escapeHtml(safeText(item.customer_name))}">${escapeHtml(safeText(item.customer_name))}</td>
+            <td>${escapeHtml(formatDate(item.created_at))}</td>
+            <td>
+              <button type="button" class="btn-secondary" onclick="goDetail('${escapeHtml(requestId)}')">상세</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function checkAdminAccess() {
+      const token = getAuthToken();
+
+      if (!token) {
+        setMessage("로그인이 필요합니다.", "error");
+        document.getElementById("requestTableBody").innerHTML =
+          '<tr><td colspan="9" class="empty-row">로그인이 필요합니다.</td></tr>';
+        return false;
+      }
+
+      try {
+        const response = await fetch(API_BASE + "/api/auth/me", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "권한 확인 실패");
+        }
+
+        const user = result.user || {};
+        const role = String(user.role || "").toLowerCase();
+
+        if (role !== "admin") {
+          setMessage("관리자만 접근할 수 있습니다.", "error");
+          document.getElementById("requestTableBody").innerHTML =
+            '<tr><td colspan="9" class="empty-row">관리자만 접근할 수 있습니다.</td></tr>';
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "권한 확인 중 오류가 발생했습니다.", "error");
+        return false;
+      }
+    }
+
+    async function loadRequests(status) {
+      const token = getAuthToken();
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      try {
+        setMessage("요청 목록을 불러오는 중입니다...", "info");
+
+        const query = status && status !== "all" ? "?status=" + encodeURIComponent(status) : "";
+        const response = await fetch(API_BASE + "/api/v2/shipments" + query, {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "요청 목록 조회 실패");
+        }
+
+        renderRows(result.items || []);
+        setMessage("");
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "요청 목록 조회 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    (async function init() {
+      const ok = await checkAdminAccess();
+      if (ok) {
+        loadRequests("submitted");
+      }
+    })();
+  </script>
+</body>
+</html>
+

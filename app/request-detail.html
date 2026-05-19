@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>출하 요청 상세</title>
+  <link rel="stylesheet" href="./css/request.css" />
+  <style>
+    .ops-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .ops-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .ops-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .ops-field label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6b7280;
+    }
+
+    .ops-field label.required::after {
+      content: " *";
+      color: #dc2626;
+    }
+
+    .ops-input,
+    .ops-select,
+    .ops-textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #111827;
+    }
+
+    .ops-textarea {
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .ops-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .ops-help {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .change-request-box {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fafbfc;
+    }
+
+    .change-request-box.active {
+      display: block;
+    }
+
+    .change-preview {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .change-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .change-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .change-field label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #6b7280;
+    }
+
+    .change-field input,
+    .change-field textarea,
+    .change-field select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 13px;
+      background: #fff;
+      color: #111827;
+    }
+
+    .change-field textarea {
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .ops-form,
+      .change-preview {
+        grid-template-columns: 1fr;
+      }
+
+      .change-field.full {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="page-header">
+      <div>
+        <h1>출하 요청 상세</h1>
+        <p>요청 상세 내용을 확인합니다.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" onclick="goList()">목록</button>
+        <button type="button" id="editBtn" class="btn-primary" onclick="goEdit()" style="display:none;">수정</button>
+        <button type="button" id="changeRequestBtn" class="btn-secondary" onclick="openChangeRequestBox()" style="display:none;">수정요청</button>
+        <button type="button" id="deleteRequestBtn" class="btn-secondary" onclick="createDeleteRequest()" style="display:none;">삭제요청</button>
+        <button type="button" id="submitBtn" class="btn-primary" onclick="changeRequestStatus('submit')" style="display:none;">제출</button>
+        <button type="button" id="reviewBtn" class="btn-primary" onclick="changeRequestStatus('review')" style="display:none;">검토완료</button>
+        <button type="button" id="confirmBtn" class="btn-primary" onclick="changeRequestStatus('confirm')" style="display:none;">최종확정</button>
+        <button type="button" id="rejectBtn" class="btn-secondary" onclick="changeRequestStatus('reject')" style="display:none;">반려</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="detail-title-row">
+        <h2 id="requestTitle">불러오는 중...</h2>
+        <span id="statusBadge" class="status-badge status-draft">draft</span>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">요청 ID</span>
+          <strong id="requestId">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">장비명</span>
+          <strong id="equipmentName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">W/O</span>
+          <strong id="wo">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">S/N</span>
+          <strong id="sn">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">고객사</span>
+          <strong id="customerName">-</strong>
+        </div>
+        <div class="detail-item">
+          <span class="label">작성일</span>
+          <strong id="createdAt">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="changeRequestCard" style="display:none;">
+      <div class="section-title-row">
+        <h2>수정 / 삭제 요청</h2>
+        <span class="muted">확정 전후 상태에서 관리자의 승인 처리가 필요한 변경 요청을 등록합니다.</span>
+      </div>
+
+      <div class="ops-help">
+        draft 또는 rejected 상태는 직접 수정할 수 있습니다.
+        submitted / reviewed / confirmed 상태에서는 수정요청 또는 삭제요청으로 관리자 승인을 받아야 합니다.
+      </div>
+
+      <div id="changeRequestBox" class="change-request-box">
+        <div class="change-preview">
+          <div class="change-field">
+            <label for="changeRequestTitle">요청 제목</label>
+            <input id="changeRequestTitle" type="text" />
+          </div>
+
+          <div class="change-field">
+            <label for="changeEquipmentName">장비명</label>
+            <input id="changeEquipmentName" type="text" />
+          </div>
+
+          <div class="change-field">
+            <label for="changeWo">W/O</label>
+            <input id="changeWo" type="text" />
+          </div>
+
+          <div class="change-field">
+            <label for="changeSn">S/N</label>
+            <input id="changeSn" type="text" />
+          </div>
+
+          <div class="change-field">
+            <label for="changeCustomerName">고객사</label>
+            <input id="changeCustomerName" type="text" />
+          </div>
+
+          <div class="change-field full">
+            <label for="changeReason">수정 사유</label>
+            <textarea id="changeReason" placeholder="수정이 필요한 사유를 입력하세요."></textarea>
+          </div>
+        </div>
+
+        <div class="ops-actions">
+          <button type="button" class="btn-primary" onclick="createUpdateRequest()">수정요청 등록</button>
+          <button type="button" class="btn-secondary" onclick="closeChangeRequestBox()">닫기</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="operationalCard" style="display:none;">
+      <div class="section-title-row">
+        <h2>관리자 운영 보완 정보</h2>
+        <span class="muted">reviewed 상태부터 최종 확정 전까지 입력합니다.</span>
+      </div>
+
+      <div class="ops-help">
+        법인, 담당자, 출발지, 도착지, 출하일, 상차시간, 출하구분은 최종 확정 전 필수로 입력합니다.
+        TERMS / 포워더 / INV No.는 선택 입력입니다.
+      </div>
+
+      <div class="ops-form">
+        <div class="ops-field">
+          <label class="required" for="opCorp">법인</label>
+          <select id="opCorp" class="ops-select">
+            <option value="">선택</option>
+            <option value="PSK">PSK</option>
+            <option value="PSK Holdings">PSK Holdings</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opManagerName">담당자</label>
+          <input id="opManagerName" class="ops-input" type="text" placeholder="담당자명" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opDepartSite">출발지</label>
+          <input id="opDepartSite" class="ops-input" type="text" placeholder="예: PSK HQ, 2사업장, 업체명" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opArrivalSite">도착지 / 하차지</label>
+          <input id="opArrivalSite" class="ops-input" type="text" placeholder="도착지 또는 하차지" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opShipDate">출하일</label>
+          <input id="opShipDate" class="ops-input" type="date" />
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opLoadTime">상차시간</label>
+          <input id="opLoadTime" class="ops-input" type="time" step="1800" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opUnloadTime">하차시간</label>
+          <input id="opUnloadTime" class="ops-input" type="time" step="1800" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opFabOut">FAB OUT</label>
+          <input id="opFabOut" class="ops-input" type="date" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opPackagingStatus">포장상태</label>
+          <select id="opPackagingStatus" class="ops-select">
+            <option value="">선택</option>
+            <option value="미정">미정</option>
+            <option value="예정">예정</option>
+            <option value="완료">완료</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opShipRequest">출하의뢰</label>
+          <select id="opShipRequest" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opCustomsStatus">통관요청</label>
+          <select id="opCustomsStatus" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opPskDelivery">PSK 배차</label>
+          <select id="opPskDelivery" class="ops-select">
+            <option value="">선택</option>
+            <option value="N">N</option>
+            <option value="Y">Y</option>
+            <option value="불필요">불필요</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label class="required" for="opShipMode">출하구분</label>
+          <select id="opShipMode" class="ops-select">
+            <option value="">선택</option>
+            <option value="내수">내수</option>
+            <option value="항공">항공</option>
+            <option value="해상">해상</option>
+            <option value="이관">이관</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+
+        <div class="ops-field">
+          <label for="opShipType">작업구분</label>
+          <input id="opShipType" class="ops-input" type="text" placeholder="예: 제품, 부분품, 이관" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opVendorName">조립업체 / 업체명</label>
+          <input id="opVendorName" class="ops-input" type="text" placeholder="해당 시 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opModuleText">부분품 정보</label>
+          <input id="opModuleText" class="ops-input" type="text" placeholder="해당 시 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opTerms">TERMS</label>
+          <input id="opTerms" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opForwarder">포워더</label>
+          <input id="opForwarder" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field">
+          <label for="opInvNo">INV No.</label>
+          <input id="opInvNo" class="ops-input" type="text" placeholder="선택 입력" />
+        </div>
+
+        <div class="ops-field full">
+          <label for="opRemark">비고</label>
+          <textarea id="opRemark" class="ops-textarea" placeholder="운영 특이사항을 입력하세요."></textarea>
+        </div>
+      </div>
+
+      <div class="ops-actions">
+        <button type="button" id="saveOperationalBtn" class="btn-primary" onclick="saveOperationalDetails()">운영정보 저장</button>
+        <button type="button" id="reloadOperationalBtn" class="btn-secondary" onclick="loadOperationalDetails()">다시 불러오기</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>변경 이력</h2>
+        <button type="button" class="btn-secondary" onclick="loadChangeHistory()">이력 새로고침</button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="request-table">
+          <thead>
+            <tr>
+              <th>요청일시</th>
+              <th>요청유형</th>
+              <th>상태</th>
+              <th>요청자</th>
+              <th>사유</th>
+              <th>처리자</th>
+              <th>처리일시</th>
+            </tr>
+          </thead>
+          <tbody id="changeHistoryBody">
+            <tr>
+              <td colspan="7">변경 이력을 불러오는 중입니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>첨부파일</h2>
+        <span class="muted">PDF / 사진 업로드 예정</span>
+      </div>
+
+      <div class="upload-box">
+        <input type="file" id="attachmentInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        <button type="button" class="btn-primary" onclick="uploadAttachments()">업로드</button>
+      </div>
+
+      <p class="muted">
+        첨부파일 기능은 현재 화면 틀만 준비된 상태입니다. 실제 저장 기능은 추후 R2 연동 후 활성화됩니다.
+      </p>
+
+      <div id="attachmentList" class="attachment-list">
+        <div class="empty-box">등록된 첨부파일이 없습니다.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "https://psk-shipment-api-dev.ms1743.workers.dev";
+    let currentRequestStatus = "";
+    let currentRequestData = null;
+
+    function getAuthToken() {
+      return (
+        localStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("access_token") ||
+        sessionStorage.getItem("PSK_SHIPMENT_AUTH_TOKEN") ||
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("access_token") ||
+        ""
+      );
+    }
+
+    function getRequestId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("request_id") || params.get("id") || sessionStorage.getItem("selected_request_id") || "";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setMessage(text, type) {
+      const el = document.getElementById("message");
+      el.textContent = text || "";
+      el.className = "message";
+      if (type) el.classList.add(type);
+    }
+
+    function safeText(value) {
+      return value === null || value === undefined || value === "" ? "-" : String(value);
+    }
+
+    function valueOrEmpty(value) {
+      return value === null || value === undefined ? "" : String(value);
+    }
+
+    function setValue(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.value = valueOrEmpty(value);
+    }
+
+    function getValue(id) {
+      const el = document.getElementById(id);
+      return el ? String(el.value || "").trim() : "";
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString("ko-KR", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function getStatusClass(status) {
+      const value = String(status || "").toLowerCase();
+      if (value === "approved" || value === "confirmed") return "status-approved";
+      if (value === "rejected") return "status-rejected";
+      if (value === "pending" || value === "submitted" || value === "reviewed") return "status-submitted";
+      return "status-draft";
+    }
+
+    function normalizeItems(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload.items)) return payload.items;
+      if (Array.isArray(payload.data)) return payload.data;
+      if (Array.isArray(payload.rows)) return payload.rows;
+      return [];
+    }
+
+    function setStatusBadge(status) {
+      const value = String(status || "draft").toLowerCase();
+      const badge = document.getElementById("statusBadge");
+      badge.textContent = value;
+      badge.className = "status-badge status-" + value;
+      currentRequestStatus = value;
+
+      const editBtn = document.getElementById("editBtn");
+      const submitBtn = document.getElementById("submitBtn");
+      const reviewBtn = document.getElementById("reviewBtn");
+      const confirmBtn = document.getElementById("confirmBtn");
+      const rejectBtn = document.getElementById("rejectBtn");
+      const operationalCard = document.getElementById("operationalCard");
+      const changeRequestBtn = document.getElementById("changeRequestBtn");
+      const deleteRequestBtn = document.getElementById("deleteRequestBtn");
+      const changeRequestCard = document.getElementById("changeRequestCard");
+
+      if (editBtn) editBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
+      if (submitBtn) submitBtn.style.display = ["draft", "rejected"].includes(value) ? "inline-flex" : "none";
+      if (reviewBtn) reviewBtn.style.display = value === "submitted" ? "inline-flex" : "none";
+      if (confirmBtn) confirmBtn.style.display = value === "reviewed" ? "inline-flex" : "none";
+      if (rejectBtn) rejectBtn.style.display = ["submitted", "reviewed"].includes(value) ? "inline-flex" : "none";
+
+      const canRequestChange = ["submitted", "reviewed", "confirmed"].includes(value);
+      if (changeRequestBtn) changeRequestBtn.style.display = canRequestChange ? "inline-flex" : "none";
+      if (deleteRequestBtn) deleteRequestBtn.style.display = canRequestChange ? "inline-flex" : "none";
+      if (changeRequestCard) changeRequestCard.style.display = canRequestChange ? "block" : "none";
+
+      if (operationalCard) {
+        operationalCard.style.display = ["reviewed", "confirmed"].includes(value) ? "block" : "none";
+      }
+    }
+
+    function fillDetail(data) {
+      const request = data.request || data.data || data;
+      currentRequestData = request;
+
+      document.getElementById("requestTitle").textContent = safeText(request.request_title || request.title);
+      document.getElementById("requestId").textContent = safeText(request.id || request.request_id);
+      document.getElementById("equipmentName").textContent = safeText(request.equipment_name);
+      document.getElementById("wo").textContent = safeText(request.wo);
+      document.getElementById("sn").textContent = safeText(request.sn);
+      document.getElementById("customerName").textContent = safeText(request.customer_name);
+      document.getElementById("createdAt").textContent = formatDate(request.created_at);
+      setStatusBadge(request.request_status || request.status);
+      fillChangeRequestForm(request);
+    }
+
+    function fillChangeRequestForm(request) {
+      setValue("changeRequestTitle", request.request_title || request.title);
+      setValue("changeEquipmentName", request.equipment_name);
+      setValue("changeWo", request.wo);
+      setValue("changeSn", request.sn);
+      setValue("changeCustomerName", request.customer_name);
+      setValue("changeReason", "");
+    }
+
+    async function loadDetail() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("요청 ID를 찾을 수 없습니다. 목록에서 다시 진입하세요.", "error");
+        return;
+      }
+
+      document.getElementById("requestId").textContent = requestId;
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v2/requests/${encodeURIComponent(requestId)}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.message || `상세 조회 실패: HTTP ${res.status}`);
+        }
+
+        fillDetail(data);
+        setMessage("");
+
+        if (["reviewed", "confirmed"].includes(currentRequestStatus)) {
+          await loadOperationalDetails();
+        }
+
+        await loadChangeHistory();
+      } catch (err) {
+        console.error(err);
+        setMessage(err.message || "상세 조회 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    function uploadAttachments() {
+      setMessage("첨부파일 업로드 기능은 준비 중입니다. R2 연동 후 활성화됩니다.", "info");
+    }
+
+    function goList() {
+      window.location.href = "./my-requests.html";
+    }
+
+    function goEdit() {
+      const requestId = getRequestId();
+
+      if (!requestId) {
+        alert("request_id가 없습니다.");
+        return;
+      }
+
+      if (!["draft", "rejected"].includes(currentRequestStatus)) {
+        alert("draft 또는 rejected 상태만 수정할 수 있습니다.");
+        return;
+      }
+
+      window.location.href = "./request.html?mode=edit&request_id=" + encodeURIComponent(requestId);
+    }
+
+    function openChangeRequestBox() {
+      const box = document.getElementById("changeRequestBox");
+      if (box) box.classList.add("active");
+    }
+
+    function closeChangeRequestBox() {
+      const box = document.getElementById("changeRequestBox");
+      if (box) box.classList.remove("active");
+    }
+
+    function getChangedRequestPayload() {
+      return {
+        request_title: getValue("changeRequestTitle"),
+        equipment_name: getValue("changeEquipmentName"),
+        wo: getValue("changeWo"),
+        sn: getValue("changeSn"),
+        customer_name: getValue("changeCustomerName")
+      };
+    }
+
+    async function createUpdateRequest() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+      const reason = getValue("changeReason");
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      if (!reason) {
+        alert("수정 사유를 입력하세요.");
+        return;
+      }
+
+      if (!confirm("수정요청을 등록하시겠습니까?")) {
+        return;
+      }
+
+      try {
+        setMessage("수정요청 등록 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-requests", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            change_type: "update",
+            request_type: "update",
+            reason: reason,
+            after_json: getChangedRequestPayload(),
+            after_data: getChangedRequestPayload()
+          })
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "수정요청 등록 실패");
+        }
+
+        setMessage("수정요청이 등록되었습니다.", "success");
+        closeChangeRequestBox();
+        await loadChangeHistory();
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "수정요청 등록 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    async function createDeleteRequest() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      const reason = prompt("삭제요청 사유를 입력하세요.");
+
+      if (reason === null) {
+        return;
+      }
+
+      if (!reason.trim()) {
+        alert("삭제요청 사유를 입력해야 합니다.");
+        return;
+      }
+
+      if (!confirm("삭제요청을 등록하시겠습니까?")) {
+        return;
+      }
+
+      try {
+        setMessage("삭제요청 등록 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-requests", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            change_type: "delete",
+            request_type: "delete",
+            reason: reason.trim()
+          })
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "삭제요청 등록 실패");
+        }
+
+        setMessage("삭제요청이 등록되었습니다.", "success");
+        await loadChangeHistory();
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "삭제요청 등록 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    function renderChangeHistory(items) {
+      const tbody = document.getElementById("changeHistoryBody");
+
+      if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="7">등록된 변경 이력이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(function (item) {
+        const historyType = item.change_type || item.request_type || item.type || "";
+        const typeText = historyType === "delete" ? "삭제요청" : "수정요청";
+        const statusText = item.status || item.request_status || "pending";
+        const requester = item.requester_name || item.created_by_name || item.created_by || item.requested_by || "-";
+        const approver = item.approved_by_name || item.reviewed_by_name || item.approved_by || item.reviewed_by || "-";
+        const handledAt = item.approved_at || item.reviewed_at || item.updated_at || "";
+
+        return `
+          <tr>
+            <td>${escapeHtml(formatDate(item.created_at))}</td>
+            <td>${escapeHtml(typeText)}</td>
+            <td><span class="status-badge ${getStatusClass(statusText)}">${escapeHtml(statusText)}</span></td>
+            <td>${escapeHtml(requester)}</td>
+            <td class="text-ellipsis" title="${escapeHtml(item.reason || "")}">${escapeHtml(item.reason || "-")}</td>
+            <td>${escapeHtml(approver)}</td>
+            <td>${escapeHtml(formatDate(handledAt))}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadChangeHistory() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+      const tbody = document.getElementById("changeHistoryBody");
+
+      if (!requestId || !token || !tbody) return;
+
+      try {
+        tbody.innerHTML = '<tr><td colspan="7">변경 이력을 불러오는 중입니다.</td></tr>';
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/change-history", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "변경 이력 조회 실패");
+        }
+
+        renderChangeHistory(normalizeItems(result));
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="7">변경 이력 조회 실패</td></tr>';
+      }
+    }
+
+    function getOperationalPayload() {
+      return {
+        corp: getValue("opCorp"),
+        manager_name: getValue("opManagerName"),
+        depart_site: getValue("opDepartSite"),
+        arrival_site: getValue("opArrivalSite"),
+        ship_date: getValue("opShipDate"),
+        load_time: getValue("opLoadTime"),
+        unload_time: getValue("opUnloadTime"),
+        fab_out: getValue("opFabOut"),
+        packaging_status: getValue("opPackagingStatus"),
+        ship_request: getValue("opShipRequest"),
+        customs_status: getValue("opCustomsStatus"),
+        psk_delivery: getValue("opPskDelivery"),
+        ship_mode: getValue("opShipMode"),
+        ship_type: getValue("opShipType"),
+        vendor_name: getValue("opVendorName"),
+        module_text: getValue("opModuleText"),
+        terms: getValue("opTerms"),
+        forwarder: getValue("opForwarder"),
+        inv_no: getValue("opInvNo"),
+        remark: getValue("opRemark")
+      };
+    }
+
+    function validateOperationalRequired() {
+      const required = [
+        ["opCorp", "법인"],
+        ["opManagerName", "담당자"],
+        ["opDepartSite", "출발지"],
+        ["opArrivalSite", "도착지 / 하차지"],
+        ["opShipDate", "출하일"],
+        ["opLoadTime", "상차시간"],
+        ["opShipMode", "출하구분"]
+      ];
+
+      const missing = required
+        .filter(([id]) => !getValue(id))
+        .map(([, label]) => label);
+
+      if (missing.length) {
+        alert("필수 운영 정보를 입력하세요.\n\n- " + missing.join("\n- "));
+        return false;
+      }
+
+      return true;
+    }
+
+    function validateHalfHourTime(value, label) {
+      if (!value) return true;
+      const parts = value.split(":");
+      if (parts.length < 2) return false;
+      const minute = Number(parts[1]);
+      if (minute === 0 || minute === 30) return true;
+      alert(label + "은 30분 단위로 입력해야 합니다.");
+      return false;
+    }
+
+    function fillOperationalDetails(payload) {
+      const item = payload.operational || payload.item || payload.data || payload.detail || payload || {};
+
+      setValue("opCorp", item.corp);
+      setValue("opManagerName", item.manager_name || item.managerName);
+      setValue("opDepartSite", item.depart_site || item.departSite);
+      setValue("opArrivalSite", item.arrival_site || item.arrivalSite);
+      setValue("opShipDate", item.ship_date || item.shipDate);
+      setValue("opLoadTime", item.load_time || item.loadTime);
+      setValue("opUnloadTime", item.unload_time || item.unloadTime);
+      setValue("opFabOut", item.fab_out || item.fabOut);
+      setValue("opPackagingStatus", item.packaging_status || item.packagingStatus);
+      setValue("opShipRequest", item.ship_request || item.shipRequest);
+      setValue("opCustomsStatus", item.customs_status || item.customsStatus);
+      setValue("opPskDelivery", item.psk_delivery || item.pskDelivery);
+      setValue("opShipMode", item.ship_mode || item.shipMode);
+      setValue("opShipType", item.ship_type || item.shipType);
+      setValue("opVendorName", item.vendor_name || item.vendorName);
+      setValue("opModuleText", item.module_text || item.moduleText);
+      setValue("opTerms", item.terms);
+      setValue("opForwarder", item.forwarder);
+      setValue("opInvNo", item.inv_no || item.invNo);
+      setValue("opRemark", item.remark);
+    }
+
+    async function loadOperationalDetails() {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId || !token) return;
+
+      try {
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/operational", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "운영정보 조회 실패");
+        }
+
+        fillOperationalDetails(result);
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "운영정보 조회 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    async function saveOperationalDetails(options) {
+      const opt = options || {};
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return false;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return false;
+      }
+
+      if (!["reviewed", "confirmed"].includes(currentRequestStatus)) {
+        setMessage("reviewed 또는 confirmed 상태에서만 운영정보를 저장할 수 있습니다.", "error");
+        return false;
+      }
+
+      if (!validateOperationalRequired()) {
+        return false;
+      }
+
+      if (!validateHalfHourTime(getValue("opLoadTime"), "상차시간")) {
+        return false;
+      }
+
+      if (!validateHalfHourTime(getValue("opUnloadTime"), "하차시간")) {
+        return false;
+      }
+
+      try {
+        if (!opt.silent) setMessage("운영정보 저장 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/operational", {
+          method: "PUT",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(getOperationalPayload())
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || "운영정보 저장 실패");
+        }
+
+        if (!opt.silent) setMessage("운영정보가 저장되었습니다.", "success");
+        return true;
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || "운영정보 저장 중 오류가 발생했습니다.", "error");
+        return false;
+      }
+    }
+
+    async function changeRequestStatus(action) {
+      const requestId = getRequestId();
+      const token = getAuthToken();
+
+      if (!requestId) {
+        setMessage("request_id가 없습니다.", "error");
+        return;
+      }
+
+      if (!token) {
+        setMessage("로그인 토큰을 찾을 수 없습니다. DEV 로그인 후 다시 시도하세요.", "error");
+        return;
+      }
+
+      const actionLabelMap = {
+        submit: "제출",
+        review: "검토완료",
+        confirm: "최종확정",
+        reject: "반려"
+      };
+
+      const actionLabel = actionLabelMap[action] || action;
+
+      let requestBody = {};
+
+      if (action === "confirm") {
+        const saved = await saveOperationalDetails({ silent: true });
+        if (!saved) return;
+      }
+
+      if (action === "reject") {
+        const rejectReason = prompt("반려 사유를 입력하세요.");
+
+        if (rejectReason === null) {
+          return;
+        }
+
+        if (!rejectReason.trim()) {
+          alert("반려 사유를 입력해야 합니다.");
+          return;
+        }
+
+        requestBody.reason = rejectReason.trim();
+      }
+
+      if (!confirm(actionLabel + " 처리하시겠습니까?")) {
+        return;
+      }
+
+      try {
+        setMessage(actionLabel + " 처리 중입니다...", "info");
+
+        const response = await fetch(API_BASE + "/api/v2/requests/" + encodeURIComponent(requestId) + "/" + action, {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const result = await response.json().catch(function () {
+          return {};
+        });
+
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.message || actionLabel + " 처리 실패");
+        }
+
+        setMessage(actionLabel + " 처리 완료되었습니다.", "success");
+        await loadDetail();
+      } catch (error) {
+        console.error(error);
+        setMessage(error.message || actionLabel + " 처리 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    loadDetail();
+  </script>
+</body>
+</html>
