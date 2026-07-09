@@ -246,6 +246,26 @@
     .notify-log-table th,.notify-log-table td{border:1px solid #e5e7eb;padding:8px 10px;text-align:left;white-space:nowrap}
     .notify-log-table th{background:#f3f4f6;color:#374151;font-weight:800}
 
+
+    .snapshot{padding:0 14px 18px;display:grid;gap:12px}
+    .snapshot-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(15,23,42,.06);flex-wrap:wrap}
+    .snapshot-title{font-size:16px;font-weight:900;color:#111827}
+    .snapshot-desc{font-size:12px;font-weight:700;color:#6b7280;margin-top:3px;line-height:1.4}
+    .snapshot-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .snapshot-btn{border:1px solid #111827;background:#111827;color:#fff;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;cursor:pointer}
+    .snapshot-btn.secondary{border-color:#d1d5db;background:#fff;color:#374151}
+    .snapshot-list{display:grid;gap:14px}
+    .snapshot-date-group{display:grid;gap:8px}
+    .snapshot-date-title{font-size:15px;font-weight:900;color:#111827;padding:0 2px}
+    .snapshot-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:13px 14px;box-shadow:0 4px 14px rgba(15,23,42,.05);display:grid;gap:8px}
+    .snapshot-card.active{border:2px solid #111827}
+    .snapshot-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .snapshot-card-title{font-size:15px;font-weight:900;color:#111827}
+    .snapshot-card-meta{font-size:12px;font-weight:700;color:#6b7280;line-height:1.45}
+    .snapshot-card-targets{font-size:12px;font-weight:800;color:#374151;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:8px 10px;word-break:break-word}
+    .snapshot-current-banner{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .meta-action-btn{border:1px solid #111827;background:#111827;color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer}
+
     @media(max-width:1024px){
       .app{max-width:100%}
       .top-layout{grid-template-columns:1fr;gap:14px}
@@ -270,7 +290,7 @@
       .date-action-row{flex-direction:column;align-items:stretch;gap:8px}
       .date-range,.date-range.compact{width:100%;flex:1 1 auto}
       .date-reset{width:100%}
-      .list,.report{padding:0 12px 14px}
+      .list,.report,.snapshot{padding:0 12px 14px}
       .report{padding:0 0 12px}
       .report-corp{gap:8px}
       .report-corp-title{font-size:15px;padding:0 12px}
@@ -418,6 +438,7 @@
 
       <section class="list" id="list"></section>
       <section class="report hidden" id="reportView"></section>
+      <section class="snapshot hidden" id="snapshotView"></section>
     </div>
 
     <div class="modal hidden" id="detailModal">
@@ -504,8 +525,10 @@
     const LOGIN_STORAGE_KEY = "PSK_SHIPMENT_AUTH_TOKEN";
 
     let appData = [];
-    let pageMeta = { updatedAt: "-", itemCount: 0 };
+    let pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
     let currentUser = null;
+    let snapshotList = [];
+    let selectedSnapshot = null;
 
     const now = new Date();
     const state = {
@@ -520,7 +543,9 @@
       calendarMonth: now.getMonth(),
       selectedDate: "",
       listDate: "",
-      advancedOpen: false
+      advancedOpen: false,
+      dataMode: "current",
+      snapshotsLoaded: false
     };
 
     const $ = id => document.getElementById(id);
@@ -554,6 +579,7 @@
     const calTitleEl = $("calendarTitle");
     const calDayPanel = $("calendarDayPanel");
     const reportEl = $("reportView");
+    const snapshotEl = $("snapshotView");
     const pageMetaBarEl = $("pageMetaBar");
 
     const detailModal = $("detailModal");
@@ -599,7 +625,8 @@
     const viewOptions = [
       { label: "캘린더", value: "calendar" },
       { label: "요약", value: "report" },
-      { label: "상세내용", value: "list" }
+      { label: "상세내용", value: "list" },
+      { label: "이력 조회", value: "snapshot" }
     ];
     const categorySet = new Set(["전체", "본사(HQ)", "2사업장", "기타"]);
     const reportCorpOrder = ["PSK", "PSK Holdings"];
@@ -682,6 +709,32 @@
 
       return `${map.month}/${map.day} ${map.hour}:${map.minute}`;
     }
+
+    function toKstFullDisplay(v) {
+      const raw = String(v || "").trim();
+      if (!raw) return "-";
+
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return raw;
+
+      const parts = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).formatToParts(d);
+
+      const map = {};
+      parts.forEach(p => {
+        if (p.type !== "literal") map[p.type] = p.value;
+      });
+
+      return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+    }
+
 
     function showAuthView() {
       authWrap.classList.remove("hidden");
@@ -815,7 +868,11 @@
       clearToken();
       currentUser = null;
       appData = [];
-      pageMeta = { updatedAt: "-", itemCount: 0 };
+      pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
+      snapshotList = [];
+      selectedSnapshot = null;
+      state.dataMode = "current";
+      state.snapshotsLoaded = false;
       showAuthView();
       setAuthMessage("로그아웃되었습니다.", false);
     }
@@ -825,14 +882,51 @@
       try {
         const payload = normalizeShipmentPayload(await apiRequest("/api/current-shipments", { method: "GET" }, true));
         appData = payload.data || [];
-        pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length }, payload.meta || {});
+        pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length, mode: "current" }, payload.meta || {});
+        pageMeta.mode = "current";
         if (pageMeta.itemCount == null) pageMeta.itemCount = appData.length;
+        selectedSnapshot = null;
+        state.dataMode = "current";
       } catch (err) {
         appData = [];
-        pageMeta = { updatedAt: "-", itemCount: 0 };
+        pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
         listEl.innerHTML = `<div class="empty">조회 데이터를 불러오지 못했습니다.<br>${esc(err && err.message ? err.message : "오류")}</div>`;
         throw err;
       }
+    }
+
+    async function loadShipmentSnapshots(force) {
+      if (state.snapshotsLoaded && !force) return snapshotList;
+      const payload = await apiRequest("/api/shipment-snapshots?limit=200", { method: "GET" }, true);
+      snapshotList = Array.isArray(payload && payload.items) ? payload.items : [];
+      state.snapshotsLoaded = true;
+      return snapshotList;
+    }
+
+    async function loadSnapshotData(snapshotId) {
+      const id = String(snapshotId || "").trim();
+      if (!id) return;
+
+      listEl.innerHTML = '<div class="loading">업로드 이력 데이터 불러오는 중...</div>';
+      const payload = normalizeShipmentPayload(await apiRequest("/api/shipment-snapshots/" + encodeURIComponent(id), { method: "GET" }, true));
+      appData = payload.data || [];
+      pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length, mode: "snapshot" }, payload.meta || {});
+      pageMeta.mode = "snapshot";
+      selectedSnapshot = pageMeta.snapshot || { snapshot_id: id, uploaded_at: pageMeta.updatedAt || "" };
+      if (pageMeta.itemCount == null) pageMeta.itemCount = appData.length;
+      state.dataMode = "snapshot";
+      state.listDate = "";
+      state.selectedDate = "";
+      state.view = "list";
+      renderAll();
+    }
+
+    async function returnToCurrentShipments() {
+      await loadCurrentShipments();
+      state.view = "list";
+      state.listDate = "";
+      state.selectedDate = "";
+      renderAll();
     }
 
     const compareDateTime = (a, b) => {
@@ -873,7 +967,24 @@
     };
 
     function renderPageMetaBar() {
+      if (state.dataMode === "snapshot" && selectedSnapshot) {
+        const uploadedAt = selectedSnapshot.uploaded_at || pageMeta.updatedAt || "";
+        const uploadedBy = selectedSnapshot.uploaded_by_username || "-";
+        const snapshotId = selectedSnapshot.snapshot_id || "-";
+        pageMetaBarEl.innerHTML =
+          `<span class="page-meta-chip"><strong>조회 기준</strong>업로드 이력</span>` +
+          `<span class="page-meta-chip"><strong>업로드 일시</strong>${esc(toKstFullDisplay(uploadedAt))}</span>` +
+          `<span class="page-meta-chip"><strong>업로드자</strong>${esc(uploadedBy)}</span>` +
+          `<span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span>` +
+          `<span class="page-meta-chip"><strong>이력 ID</strong>${esc(snapshotId)}</span>` +
+          `<button class="meta-action-btn" id="returnCurrentBtn" type="button">최신 현황으로 돌아가기</button>`;
+        const btn = $("returnCurrentBtn");
+        if (btn) btn.addEventListener("click", returnToCurrentShipments);
+        return;
+      }
+
       pageMetaBarEl.innerHTML =
+        `<span class="page-meta-chip"><strong>조회 기준</strong>최신 데이터</span>` +
         `<span class="page-meta-chip"><strong>최종 수정</strong>${formatStamp(pageMeta)}</span>` +
         `<span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span>`;
     }
@@ -1256,17 +1367,258 @@
         }).join("") || '<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
     }
 
+    function buildSnapshotTargetsText(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "-";
+      return raw.split("|").map(v => v.trim()).filter(Boolean).join(", ") || raw;
+    }
+
+    function getKstParts(v) {
+      const raw = String(v || "").trim();
+      const d = new Date(raw);
+      if (!raw || Number.isNaN(d.getTime())) return null;
+      const parts = new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).formatToParts(d);
+      const map = {};
+      parts.forEach(p => {
+        if (p.type !== "literal") map[p.type] = p.value;
+      });
+      return map;
+    }
+
+    function getHistoryDateKey(v) {
+      const p = getKstParts(v);
+      if (!p) return "날짜 미확인";
+      return `${p.year}-${p.month}-${p.day}`;
+    }
+
+    function getHistoryTimeText(v) {
+      const p = getKstParts(v);
+      if (!p) return "--:--";
+      return `${p.hour}:${p.minute}`;
+    }
+
+    function getHistoryDateTitle(dateKey) {
+      if (!dateKey || dateKey === "날짜 미확인") return "날짜 미확인";
+      const parts = dateKey.split("-");
+      if (parts.length !== 3) return dateKey;
+      return `${parts[0]}-${parts[1]}-${parts[2]}`;
+    }
+
+    function groupShipmentSnapshotsByDate(rows) {
+      const groups = {};
+      (Array.isArray(rows) ? rows : []).forEach(item => {
+        const uploadedAt = item.uploaded_at || item.created_at || "";
+        const key = getHistoryDateKey(uploadedAt);
+        (groups[key] = groups[key] || []).push(item);
+      });
+      return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(key => ({
+        dateKey: key,
+        items: groups[key].sort((a, b) => String(b.uploaded_at || b.created_at || "").localeCompare(String(a.uploaded_at || a.created_at || "")))
+      }));
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      return '"' + text.replace(/"/g, '""') + '"';
+    }
+
+    function buildShipmentHistoryCsv(rows) {
+      const columns = [
+        ["corp", "법인"],
+        ["category", "분류"],
+        ["depart", "출발지"],
+        ["shipType", "구분"],
+        ["shipDate", "출하일"],
+        ["shipDateText", "출하일_표시"],
+        ["loadTime", "상차시간"],
+        ["unloadTime", "하차시간"],
+        ["fabOut", "FAB_OUT"],
+        ["packaging", "포장예정"],
+        ["sizeNotice", "사이즈_전달"],
+        ["shipRequest", "출하의뢰"],
+        ["customs", "통관요청"],
+        ["terms", "TERMS"],
+        ["pskDelivery", "PSK배차"],
+        ["wo", "W/O"],
+        ["sn", "S/N"],
+        ["model", "장비명"],
+        ["exportInfo", "수출여부"],
+        ["shipMode", "수출내수구분"],
+        ["forwarder", "포워더"],
+        ["customer", "고객사"],
+        ["manager", "담당자"],
+        ["inv", "INV"],
+        ["vendorName", "업체명"],
+        ["moduleText", "부분품"],
+        ["locationText", "위치"]
+      ];
+      const header = columns.map(c => csvEscape(c[1])).join(",");
+      const body = (Array.isArray(rows) ? rows : []).map(row => columns.map(c => csvEscape(row[c[0]])).join(","));
+      return "\ufeff" + [header].concat(body).join("\r\n");
+    }
+
+    function downloadText(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType || "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function makeHistoryCsvFilename(snapshot, rowCount) {
+      const uploadedAt = snapshot && (snapshot.uploaded_at || snapshot.created_at || "");
+      const p = getKstParts(uploadedAt);
+      const stamp = p ? `${p.year}${p.month}${p.day}_${p.hour}${p.minute}` : "unknown_date";
+      return `shipment_history_${stamp}_${rowCount || 0}rows.csv`;
+    }
+
+    async function downloadSnapshotCsv(snapshotId) {
+      const id = String(snapshotId || "").trim();
+      if (!id) return;
+      const payload = normalizeShipmentPayload(await apiRequest("/api/shipment-snapshots/" + encodeURIComponent(id), { method: "GET" }, true));
+      const rows = payload.data || [];
+      const snapshot = payload.meta && payload.meta.snapshot ? payload.meta.snapshot : { snapshot_id: id };
+      const csv = buildShipmentHistoryCsv(rows);
+      downloadText(makeHistoryCsvFilename(snapshot, rows.length), csv, "text/csv;charset=utf-8");
+    }
+
+    async function renderSnapshotView() {
+      snapshotEl.classList.remove("hidden");
+
+      if (!state.snapshotsLoaded) {
+        snapshotEl.innerHTML = '<div class="loading">업로드 이력 불러오는 중...</div>';
+        try {
+          await loadShipmentSnapshots(false);
+        } catch (err) {
+          snapshotEl.innerHTML = '<div class="empty">업로드 이력을 불러오지 못했습니다.<br>' + esc(err && err.message ? err.message : '오류') + '</div>';
+          return;
+        }
+      }
+
+      const currentSnapshotId = selectedSnapshot && selectedSnapshot.snapshot_id ? selectedSnapshot.snapshot_id : "";
+      const banner = state.dataMode === "snapshot" && selectedSnapshot
+        ? '<div class="snapshot-current-banner"><div>현재 업로드 이력 조회 중 · 업로드 일시: ' + esc(toKstFullDisplay(selectedSnapshot.uploaded_at || pageMeta.updatedAt || "")) + '</div><button class="snapshot-btn secondary" id="snapshotReturnCurrentBtn" type="button">최신 현황으로 돌아가기</button></div>'
+        : '';
+
+      const groups = groupShipmentSnapshotsByDate(snapshotList);
+      const listHtml = groups.length
+        ? '<div class="snapshot-list">' + groups.map(group => {
+            const cards = group.items.map(item => {
+              const sid = item.snapshot_id || "";
+              const active = sid && sid === currentSnapshotId;
+              const uploadedAt = item.uploaded_at || item.created_at || "";
+              const uploadedBy = item.uploaded_by_username || "-";
+              const itemCount = item.item_count == null ? "-" : String(item.item_count);
+              const targets = buildSnapshotTargetsText(item.uploaded_targets);
+              return '' +
+                '<article class="snapshot-card ' + (active ? 'active' : '') + '">' +
+                  '<div class="snapshot-card-head">' +
+                    '<div>' +
+                      '<div class="snapshot-card-title">' + esc(getHistoryTimeText(uploadedAt)) + ' 업로드' + (active ? ' · 현재 조회 중' : '') + '</div>' +
+                      '<div class="snapshot-card-meta">업로드 일시: ' + esc(toKstFullDisplay(uploadedAt)) + ' · 업로드자: ' + esc(uploadedBy) + ' · 건수: ' + esc(itemCount) + '건 · ID: ' + esc(sid) + '</div>' +
+                    '</div>' +
+                    '<div class="snapshot-actions">' +
+                      '<button class="snapshot-btn js-load-snapshot" data-snapshot-id="' + esc(sid) + '" type="button">' + (active ? '다시 불러오기' : '조회') + '</button>' +
+                      '<button class="snapshot-btn secondary js-download-snapshot" data-snapshot-id="' + esc(sid) + '" type="button">CSV 다운로드</button>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="snapshot-card-targets">포함 대상: ' + esc(targets) + '</div>' +
+                '</article>';
+            }).join('');
+            return '<section class="snapshot-date-group"><div class="snapshot-date-title">' + esc(getHistoryDateTitle(group.dateKey)) + '</div>' + cards + '</section>';
+          }).join('') + '</div>'
+        : '<div class="empty">저장된 업로드 이력이 없습니다.</div>';
+
+      snapshotEl.innerHTML =
+        '<div class="snapshot-toolbar">' +
+          '<div>' +
+            '<div class="snapshot-title">이력 조회</div>' +
+            '<div class="snapshot-desc">업로드 일자별로 저장된 출하 데이터 이력입니다. 조회 시 상단에 업로드 일시가 표시됩니다.</div>' +
+          '</div>' +
+          '<div class="snapshot-actions">' +
+            '<button class="snapshot-btn secondary" id="snapshotRefreshBtn" type="button">목록 새로고침</button>' +
+            '<button class="snapshot-btn secondary" id="snapshotCurrentBtn" type="button">최신 현황</button>' +
+          '</div>' +
+        '</div>' +
+        banner +
+        listHtml;
+
+      const refreshBtn = $("snapshotRefreshBtn");
+      const currentBtn = $("snapshotCurrentBtn");
+      const bannerCurrentBtn = $("snapshotReturnCurrentBtn");
+
+      if (refreshBtn) refreshBtn.addEventListener("click", async () => {
+        state.snapshotsLoaded = false;
+        await loadShipmentSnapshots(true);
+        renderAll();
+      });
+
+      if (currentBtn) currentBtn.addEventListener("click", returnToCurrentShipments);
+      if (bannerCurrentBtn) bannerCurrentBtn.addEventListener("click", returnToCurrentShipments);
+
+      snapshotEl.querySelectorAll(".js-load-snapshot").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          try {
+            btn.disabled = true;
+            btn.textContent = "불러오는 중...";
+            await loadSnapshotData(btn.dataset.snapshotId);
+          } catch (err) {
+            alert(err && err.message ? err.message : "이력 조회 실패");
+            renderAll();
+          }
+        });
+      });
+
+      snapshotEl.querySelectorAll(".js-download-snapshot").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          try {
+            btn.disabled = true;
+            btn.textContent = "다운로드 중...";
+            await downloadSnapshotCsv(btn.dataset.snapshotId);
+            btn.textContent = "CSV 다운로드";
+            btn.disabled = false;
+          } catch (err) {
+            alert(err && err.message ? err.message : "CSV 다운로드 실패");
+            btn.textContent = "CSV 다운로드";
+            btn.disabled = false;
+          }
+        });
+      });
+    }
+
     function renderMainView(items) {
       const isCalendar = state.view === "calendar";
       const isReport = state.view === "report";
+      const isSnapshot = state.view === "snapshot";
 
-      listEl.classList.toggle("hidden", isCalendar || isReport);
+      listEl.classList.toggle("hidden", isCalendar || isReport || isSnapshot);
       reportEl.classList.toggle("hidden", !isReport);
+      snapshotEl.classList.toggle("hidden", !isSnapshot);
       calToolbar.classList.toggle("hidden", !isCalendar);
       calWrap.classList.toggle("hidden", !isCalendar);
 
+      if (!isCalendar) {
+        calEl.innerHTML = "";
+        calDayPanel.innerHTML = "";
+      }
+      if (!isReport) reportEl.innerHTML = "";
+      if (!isSnapshot) snapshotEl.innerHTML = "";
+
       if (isCalendar) renderCalendar(items);
       else if (isReport) renderReport(items);
+      else if (isSnapshot) renderSnapshotView();
       else renderList(items);
     }
 
@@ -1967,7 +2319,11 @@
       renderFilterTabs();
       renderPageMetaBar();
       state.listDate = pickInitialListDate(items, state.listDate);
-      summaryInlineEl.innerHTML = `<div class="summary-card"><div class="summary-label">전체 예정 건수</div><div class="summary-value">${items.length}</div></div>`;
+      const summaryLabel = state.dataMode === "snapshot" ? "이력 조회 건수" : "전체 예정 건수";
+      const summaryExtra = state.dataMode === "snapshot" && selectedSnapshot
+        ? `<div class="summary-label" style="margin-top:6px;">${esc(toKstFullDisplay(selectedSnapshot.uploaded_at || pageMeta.updatedAt || ""))}</div>`
+        : "";
+      summaryInlineEl.innerHTML = `<div class="summary-card"><div class="summary-label">${summaryLabel}</div><div class="summary-value">${items.length}</div>${summaryExtra}</div>`;
       summaryEl.innerHTML = '';
       toggleAdvancedFiltersBtn.textContent = state.advancedOpen ? '필터 닫기' : '필터 열기';
       advancedFiltersEl.classList.toggle('hidden', !state.advancedOpen);
