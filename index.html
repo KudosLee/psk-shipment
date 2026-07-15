@@ -1130,7 +1130,7 @@
         body += `<tr class="${rowCls}">`;
         cols.forEach(c => {
           let cls = c.cls || "";
-          if (c.key === "exportInfo" && item.shipType === "이관") cls += (cls ? " " : "") + "transfer";
+          if (c.key === "exportInfo" && item.shipMode === "이관") cls += (cls ? " " : "") + "transfer";
           if (c.key === "inv" && item.invGreen === "Y") cls += (cls ? " " : "") + "has-inv";
 
           if (c.key === dateKey) {
