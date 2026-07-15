@@ -25,10 +25,8 @@
     .user-menu-panel{position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 12px 30px rgba(15,23,42,.12);padding:8px;display:grid;gap:6px}
     .user-menu-item{border:1px solid transparent;background:#fff;border-radius:10px;padding:10px 12px;text-align:left;font-size:13px;font-weight:800;color:#374151;cursor:pointer}
     .user-menu-item:hover{background:#f8fafc;border-color:#e5e7eb}
-    .user-menu-group-title{padding:8px 12px 4px;font-size:11px;font-weight:900;color:#94a3b8;letter-spacing:.04em}
-    .user-menu-divider{height:1px;background:#e5e7eb;margin:4px 0}
 
-    .auth-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 14px}
+    .auth-wrap{display:flex;align-items:center;justify-content:center;padding:36px 14px}
     .auth-card{width:100%;max-width:420px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:22px;box-shadow:0 8px 24px rgba(15,23,42,.08)}
     .auth-title{font-size:22px;font-weight:900;color:#111827;margin-bottom:4px}
     .auth-subtitle{font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.5}
@@ -37,35 +35,6 @@
     .auth-btn{width:100%;margin-top:14px;border:0;background:#111827;color:#fff;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:800;cursor:pointer}
     .auth-btn:disabled{opacity:.6;cursor:default}
     .auth-msg{margin-top:10px;font-size:13px;line-height:1.5;min-height:20px;color:#b91c1c;font-weight:700}
-
-
-    .public-notice-card{width:100%;max-width:620px;background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-    .public-notice-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-    .public-notice-title{font-size:15px;font-weight:900;color:#111827}
-    .public-notice-more{border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer}
-    .public-notice-list{display:grid;gap:8px}
-    .public-notice-item{border:1px solid #eef2f7;background:#fafbfc;border-radius:12px;padding:10px 12px}
-    .public-notice-item-title{font-size:13px;font-weight:900;color:#111827;margin-bottom:4px;word-break:break-word}
-    .public-notice-item-meta{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px}
-    .public-notice-item-body{font-size:12px;font-weight:700;color:#374151;line-height:1.45;white-space:pre-wrap;word-break:break-word}
-    .notice-wrap{display:grid;gap:12px}
-    .notice-admin-form{display:grid;gap:10px;border:1px solid #e5e7eb;background:#fff;border-radius:14px;padding:14px}
-    .notice-field{display:grid;gap:6px}
-    .notice-label{font-size:12px;font-weight:800;color:#6b7280}
-    .notice-input,.notice-textarea{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 11px;font-size:13px;background:#fff;color:#111827}
-    .notice-textarea{min-height:90px;resize:vertical;line-height:1.5}
-    .notice-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .notice-btn{border:1px solid #111827;background:#111827;color:#fff;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:800;cursor:pointer}
-    .notice-btn.secondary{border-color:#d1d5db;background:#fff;color:#374151}
-    .notice-msg{font-size:12px;font-weight:700;min-height:18px;color:#b91c1c}
-    .notice-list{display:grid;gap:8px}
-    .notice-card{border:1px solid #e5e7eb;background:#fff;border-radius:14px;padding:12px}
-    .notice-card-title{font-size:14px;font-weight:900;color:#111827;margin-bottom:4px;word-break:break-word}
-    .notice-card-meta{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:8px}
-    .notice-card-body{font-size:13px;font-weight:700;color:#374151;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-    .summary-depart-box{display:inline-flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:4px;padding:7px 10px;border-radius:10px;background:#fff8db;border:1px solid #fde68a}
-    .summary-depart-label{font-size:11px;font-weight:900;color:#92400e}
-    .summary-depart-value{font-size:14px;font-weight:900;color:#111827}
 
     .summary{display:none}
     .summary-card{background:#fff;border-radius:14px;padding:10px 10px;box-shadow:0 4px 14px rgba(15,23,42,.06);text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center}
@@ -246,26 +215,6 @@
     .notify-log-table th,.notify-log-table td{border:1px solid #e5e7eb;padding:8px 10px;text-align:left;white-space:nowrap}
     .notify-log-table th{background:#f3f4f6;color:#374151;font-weight:800}
 
-
-    .snapshot{padding:0 14px 18px;display:grid;gap:12px}
-    .snapshot-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px 14px;box-shadow:0 4px 14px rgba(15,23,42,.06);flex-wrap:wrap}
-    .snapshot-title{font-size:16px;font-weight:900;color:#111827}
-    .snapshot-desc{font-size:12px;font-weight:700;color:#6b7280;margin-top:3px;line-height:1.4}
-    .snapshot-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .snapshot-btn{border:1px solid #111827;background:#111827;color:#fff;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;cursor:pointer}
-    .snapshot-btn.secondary{border-color:#d1d5db;background:#fff;color:#374151}
-    .snapshot-list{display:grid;gap:14px}
-    .snapshot-date-group{display:grid;gap:8px}
-    .snapshot-date-title{font-size:15px;font-weight:900;color:#111827;padding:0 2px}
-    .snapshot-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:13px 14px;box-shadow:0 4px 14px rgba(15,23,42,.05);display:grid;gap:8px}
-    .snapshot-card.active{border:2px solid #111827}
-    .snapshot-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .snapshot-card-title{font-size:15px;font-weight:900;color:#111827}
-    .snapshot-card-meta{font-size:12px;font-weight:700;color:#6b7280;line-height:1.45}
-    .snapshot-card-targets{font-size:12px;font-weight:800;color:#374151;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:8px 10px;word-break:break-word}
-    .snapshot-current-banner{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .meta-action-btn{border:1px solid #111827;background:#111827;color:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer}
-
     @media(max-width:1024px){
       .app{max-width:100%}
       .top-layout{grid-template-columns:1fr;gap:14px}
@@ -290,7 +239,7 @@
       .date-action-row{flex-direction:column;align-items:stretch;gap:8px}
       .date-range,.date-range.compact{width:100%;flex:1 1 auto}
       .date-reset{width:100%}
-      .list,.report,.snapshot{padding:0 12px 14px}
+      .list,.report{padding:0 12px 14px}
       .report{padding:0 0 12px}
       .report-corp{gap:8px}
       .report-corp-title{font-size:15px;padding:0 12px}
@@ -338,6 +287,7 @@
   </style>
 </head>
 <body>
+  
   <div class="app">
     <div class="header">
       <div class="header-top">
@@ -360,15 +310,6 @@
         <input class="auth-input" id="loginPassword" type="password" autocomplete="current-password" placeholder="비밀번호 입력">
         <button class="auth-btn" id="loginBtn" type="button">로그인</button>
         <div class="auth-msg" id="authMsg"></div>
-      </div>
-      <div class="public-notice-card" id="publicNoticeCard">
-        <div class="public-notice-head">
-          <div class="public-notice-title">공지사항</div>
-          <button class="public-notice-more" id="publicNoticeMoreBtn" type="button">전체 보기</button>
-        </div>
-        <div class="public-notice-list" id="publicNoticeList">
-          <div class="public-notice-item"><div class="public-notice-item-body">공지사항을 불러오는 중...</div></div>
-        </div>
       </div>
     </section>
 
@@ -438,7 +379,6 @@
 
       <section class="list" id="list"></section>
       <section class="report hidden" id="reportView"></section>
-      <section class="snapshot hidden" id="snapshotView"></section>
     </div>
 
     <div class="modal hidden" id="detailModal">
@@ -460,17 +400,6 @@
           <button class="modal-close" id="notificationModalClose" type="button">&#215;</button>
         </div>
         <div class="modal-body" id="notificationModalBody"></div>
-      </div>
-    </div>
-
-    <div class="modal hidden" id="noticeModal">
-      <div class="modal-backdrop" id="noticeModalBackdrop"></div>
-      <div class="modal-content">
-        <div class="modal-head">
-          <div class="modal-title">공지사항</div>
-          <button class="modal-close" id="noticeModalClose" type="button">&#215;</button>
-        </div>
-        <div class="modal-body" id="noticeModalBody"></div>
       </div>
     </div>
 
@@ -521,14 +450,12 @@
 
   <script>
     const API_BASE = "https://psk-shipment-api.ms1743.workers.dev";
-    const FIXED_NOTIFICATION_TARGETS = ["PSK HQ","2사업장","SENT","SAM","ASEM","이지스","나우테크"];
+    const FIXED_NOTIFICATION_TARGETS = ["PSK HQ","2사업장","평택","용인","SENT","SAM","ASEM","이지스","나우테크"];
     const LOGIN_STORAGE_KEY = "PSK_SHIPMENT_AUTH_TOKEN";
 
     let appData = [];
-    let pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
+    let pageMeta = { updatedAt: "-", itemCount: 0 };
     let currentUser = null;
-    let snapshotList = [];
-    let selectedSnapshot = null;
 
     const now = new Date();
     const state = {
@@ -543,9 +470,7 @@
       calendarMonth: now.getMonth(),
       selectedDate: "",
       listDate: "",
-      advancedOpen: false,
-      dataMode: "current",
-      snapshotsLoaded: false
+      advancedOpen: false
     };
 
     const $ = id => document.getElementById(id);
@@ -579,7 +504,6 @@
     const calTitleEl = $("calendarTitle");
     const calDayPanel = $("calendarDayPanel");
     const reportEl = $("reportView");
-    const snapshotEl = $("snapshotView");
     const pageMetaBarEl = $("pageMetaBar");
 
     const detailModal = $("detailModal");
@@ -592,13 +516,6 @@
     const notificationModalBackdrop = $("notificationModalBackdrop");
     const notificationModalClose = $("notificationModalClose");
     const notificationModalBody = $("notificationModalBody");
-
-    const noticeModal = $("noticeModal");
-    const noticeModalBackdrop = $("noticeModalBackdrop");
-    const noticeModalClose = $("noticeModalClose");
-    const noticeModalBody = $("noticeModalBody");
-    const publicNoticeList = $("publicNoticeList");
-    const publicNoticeMoreBtn = $("publicNoticeMoreBtn");
 
     const adminNotificationModal = $("adminNotificationModal");
     const adminNotificationModalBackdrop = $("adminNotificationModalBackdrop");
@@ -625,12 +542,11 @@
     const viewOptions = [
       { label: "캘린더", value: "calendar" },
       { label: "요약", value: "report" },
-      { label: "상세내용", value: "list" },
-      { label: "이력 조회", value: "snapshot" }
+      { label: "상세내용", value: "list" }
     ];
     const categorySet = new Set(["전체", "본사(HQ)", "2사업장", "기타"]);
     const reportCorpOrder = ["PSK", "PSK Holdings"];
-    const reportDepartOrder = ["PSK HQ", "2사업장", "조립업체", "기타"];
+    const reportDepartOrder = ["PSK HQ", "2사업장", "평택", "용인", "조립업체", "기타"];
 
     const esc = v => String(v ?? "")
       .replace(/&/g, "&amp;")
@@ -649,7 +565,7 @@
 
     function getFixedTargets() {
       const base = Array.isArray(FIXED_NOTIFICATION_TARGETS) ? FIXED_NOTIFICATION_TARGETS.slice() : [];
-      const defaults = ["PSK HQ", "2사업장", "SENT", "SAM", "ASEM", "이지스", "나우테크"];
+      const defaults = ["PSK HQ", "2사업장", "평택", "용인", "SENT", "SAM", "ASEM", "이지스", "나우테크"];
       return Array.from(new Set([].concat(base, defaults).filter(Boolean).map(v => String(v).trim()).filter(Boolean))).sort();
     }
 
@@ -710,32 +626,6 @@
       return `${map.month}/${map.day} ${map.hour}:${map.minute}`;
     }
 
-    function toKstFullDisplay(v) {
-      const raw = String(v || "").trim();
-      if (!raw) return "-";
-
-      const d = new Date(raw);
-      if (Number.isNaN(d.getTime())) return raw;
-
-      const parts = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      }).formatToParts(d);
-
-      const map = {};
-      parts.forEach(p => {
-        if (p.type !== "literal") map[p.type] = p.value;
-      });
-
-      return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
-    }
-
-
     function showAuthView() {
       authWrap.classList.remove("hidden");
       appShell.classList.add("hidden");
@@ -743,7 +633,6 @@
       pageMetaBarEl.innerHTML = "";
       closeDetailModal();
       closeNotificationModal();
-      closeNoticeModal();
       closeAdminNotificationModal();
       closeAdminIpModal();
       closeAdminUserModal();
@@ -770,12 +659,6 @@
     const closeNotificationModal = () => {
       notificationModal.classList.add("hidden");
       notificationModalBody.innerHTML = "";
-      document.body.style.overflow = "";
-    };
-
-    const closeNoticeModal = () => {
-      noticeModal.classList.add("hidden");
-      noticeModalBody.innerHTML = "";
       document.body.style.overflow = "";
     };
 
@@ -868,11 +751,7 @@
       clearToken();
       currentUser = null;
       appData = [];
-      pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
-      snapshotList = [];
-      selectedSnapshot = null;
-      state.dataMode = "current";
-      state.snapshotsLoaded = false;
+      pageMeta = { updatedAt: "-", itemCount: 0 };
       showAuthView();
       setAuthMessage("로그아웃되었습니다.", false);
     }
@@ -882,51 +761,14 @@
       try {
         const payload = normalizeShipmentPayload(await apiRequest("/api/current-shipments", { method: "GET" }, true));
         appData = payload.data || [];
-        pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length, mode: "current" }, payload.meta || {});
-        pageMeta.mode = "current";
+        pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length }, payload.meta || {});
         if (pageMeta.itemCount == null) pageMeta.itemCount = appData.length;
-        selectedSnapshot = null;
-        state.dataMode = "current";
       } catch (err) {
         appData = [];
-        pageMeta = { updatedAt: "-", itemCount: 0, mode: "current" };
+        pageMeta = { updatedAt: "-", itemCount: 0 };
         listEl.innerHTML = `<div class="empty">조회 데이터를 불러오지 못했습니다.<br>${esc(err && err.message ? err.message : "오류")}</div>`;
         throw err;
       }
-    }
-
-    async function loadShipmentSnapshots(force) {
-      if (state.snapshotsLoaded && !force) return snapshotList;
-      const payload = await apiRequest("/api/shipment-snapshots?limit=200", { method: "GET" }, true);
-      snapshotList = Array.isArray(payload && payload.items) ? payload.items : [];
-      state.snapshotsLoaded = true;
-      return snapshotList;
-    }
-
-    async function loadSnapshotData(snapshotId) {
-      const id = String(snapshotId || "").trim();
-      if (!id) return;
-
-      listEl.innerHTML = '<div class="loading">업로드 이력 데이터 불러오는 중...</div>';
-      const payload = normalizeShipmentPayload(await apiRequest("/api/shipment-snapshots/" + encodeURIComponent(id), { method: "GET" }, true));
-      appData = payload.data || [];
-      pageMeta = Object.assign({ updatedAt: "-", itemCount: appData.length, mode: "snapshot" }, payload.meta || {});
-      pageMeta.mode = "snapshot";
-      selectedSnapshot = pageMeta.snapshot || { snapshot_id: id, uploaded_at: pageMeta.updatedAt || "" };
-      if (pageMeta.itemCount == null) pageMeta.itemCount = appData.length;
-      state.dataMode = "snapshot";
-      state.listDate = "";
-      state.selectedDate = "";
-      state.view = "list";
-      renderAll();
-    }
-
-    async function returnToCurrentShipments() {
-      await loadCurrentShipments();
-      state.view = "list";
-      state.listDate = "";
-      state.selectedDate = "";
-      renderAll();
     }
 
     const compareDateTime = (a, b) => {
@@ -967,24 +809,7 @@
     };
 
     function renderPageMetaBar() {
-      if (state.dataMode === "snapshot" && selectedSnapshot) {
-        const uploadedAt = selectedSnapshot.uploaded_at || pageMeta.updatedAt || "";
-        const uploadedBy = selectedSnapshot.uploaded_by_username || "-";
-        const snapshotId = selectedSnapshot.snapshot_id || "-";
-        pageMetaBarEl.innerHTML =
-          `<span class="page-meta-chip"><strong>조회 기준</strong>업로드 이력</span>` +
-          `<span class="page-meta-chip"><strong>업로드 일시</strong>${esc(toKstFullDisplay(uploadedAt))}</span>` +
-          `<span class="page-meta-chip"><strong>업로드자</strong>${esc(uploadedBy)}</span>` +
-          `<span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span>` +
-          `<span class="page-meta-chip"><strong>이력 ID</strong>${esc(snapshotId)}</span>` +
-          `<button class="meta-action-btn" id="returnCurrentBtn" type="button">최신 현황으로 돌아가기</button>`;
-        const btn = $("returnCurrentBtn");
-        if (btn) btn.addEventListener("click", returnToCurrentShipments);
-        return;
-      }
-
       pageMetaBarEl.innerHTML =
-        `<span class="page-meta-chip"><strong>조회 기준</strong>최신 데이터</span>` +
         `<span class="page-meta-chip"><strong>최종 수정</strong>${formatStamp(pageMeta)}</span>` +
         `<span class="page-meta-chip"><strong>데이터 건수</strong>${esc(String(appData.length))}</span>`;
     }
@@ -1074,19 +899,13 @@
     const renderModeTabs = () => renderTabs(modeTabs, modeOptions, "mode", v => state.mode = v);
     const renderFilterTabs = () => renderTabs(filterTabs, getFilterOptions(), "filter", v => state.filter = v);
 
-    function getWorkLocationText(item) {
-      const isEtc = item.category === "기타";
-      if (item.depart === "조립업체") return item.vendorName || item.depart || "-";
-      if (isEtc) return item.locationText || item.depart || "-";
-      return item.depart || "-";
-    }
-
     function renderItemSummary(item) {
+      const isEtc = item.category === "기타";
       const corpLabel = item.corp === "PSK Holdings" ? "PSKH" : "PSK";
       const workDate = item.shipDateText || item.shipDate || "-";
-      const workLoc = getWorkLocationText(item);
+      const workLoc = item.depart === "조립업체" ? (item.vendorName || item.depart) : (isEtc ? (item.locationText || item.depart) : item.depart);
       const customerLine = [item.customer || "", corpLabel, item.shipMode || "기타"].filter(Boolean).join(" · ");
-      const timeLine = item.loadTime ? "상차시간: " + item.loadTime : "상차시간: -";
+      const workLine = "작업지: " + (workLoc || "-") + (item.loadTime ? " · 상차시간: " + item.loadTime : "");
       return `
         <div class="badge-row">
           <span class="${item.corp === 'PSK' ? 'corp-badge corp-psk' : 'corp-badge corp-holdings'}">${esc(corpLabel)}</span>
@@ -1096,13 +915,9 @@
           <div class="summary-main">
             <div class="summary-line"><span class="summary-wo">${esc(item.wo || "-")}</span></div>
             <div class="summary-subline">${esc(workDate)}</div>
-            <div class="summary-depart-box">
-              <span class="summary-depart-label">출발지</span>
-              <span class="summary-depart-value">${esc(workLoc)}</span>
-            </div>
             <div class="summary-model-line">${esc(item.model || "-")}</div>
             <div class="summary-subline">${esc(customerLine || "-")}</div>
-            <div class="summary-subline">${esc(timeLine)}</div>
+            <div class="summary-subline">${esc(workLine)}</div>
           </div>
           <span class="arrow">&#8964;</span>
         </div>
@@ -1367,258 +1182,17 @@
         }).join("") || '<div class="empty">조건에 맞는 데이터가 없습니다.</div>';
     }
 
-    function buildSnapshotTargetsText(value) {
-      const raw = String(value || "").trim();
-      if (!raw) return "-";
-      return raw.split("|").map(v => v.trim()).filter(Boolean).join(", ") || raw;
-    }
-
-    function getKstParts(v) {
-      const raw = String(v || "").trim();
-      const d = new Date(raw);
-      if (!raw || Number.isNaN(d.getTime())) return null;
-      const parts = new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      }).formatToParts(d);
-      const map = {};
-      parts.forEach(p => {
-        if (p.type !== "literal") map[p.type] = p.value;
-      });
-      return map;
-    }
-
-    function getHistoryDateKey(v) {
-      const p = getKstParts(v);
-      if (!p) return "날짜 미확인";
-      return `${p.year}-${p.month}-${p.day}`;
-    }
-
-    function getHistoryTimeText(v) {
-      const p = getKstParts(v);
-      if (!p) return "--:--";
-      return `${p.hour}:${p.minute}`;
-    }
-
-    function getHistoryDateTitle(dateKey) {
-      if (!dateKey || dateKey === "날짜 미확인") return "날짜 미확인";
-      const parts = dateKey.split("-");
-      if (parts.length !== 3) return dateKey;
-      return `${parts[0]}-${parts[1]}-${parts[2]}`;
-    }
-
-    function groupShipmentSnapshotsByDate(rows) {
-      const groups = {};
-      (Array.isArray(rows) ? rows : []).forEach(item => {
-        const uploadedAt = item.uploaded_at || item.created_at || "";
-        const key = getHistoryDateKey(uploadedAt);
-        (groups[key] = groups[key] || []).push(item);
-      });
-      return Object.keys(groups).sort((a, b) => b.localeCompare(a)).map(key => ({
-        dateKey: key,
-        items: groups[key].sort((a, b) => String(b.uploaded_at || b.created_at || "").localeCompare(String(a.uploaded_at || a.created_at || "")))
-      }));
-    }
-
-    function csvEscape(value) {
-      const text = String(value ?? "");
-      return '"' + text.replace(/"/g, '""') + '"';
-    }
-
-    function buildShipmentHistoryCsv(rows) {
-      const columns = [
-        ["corp", "법인"],
-        ["category", "분류"],
-        ["depart", "출발지"],
-        ["shipType", "구분"],
-        ["shipDate", "출하일"],
-        ["shipDateText", "출하일_표시"],
-        ["loadTime", "상차시간"],
-        ["unloadTime", "하차시간"],
-        ["fabOut", "FAB_OUT"],
-        ["packaging", "포장예정"],
-        ["sizeNotice", "사이즈_전달"],
-        ["shipRequest", "출하의뢰"],
-        ["customs", "통관요청"],
-        ["terms", "TERMS"],
-        ["pskDelivery", "PSK배차"],
-        ["wo", "W/O"],
-        ["sn", "S/N"],
-        ["model", "장비명"],
-        ["exportInfo", "수출여부"],
-        ["shipMode", "수출내수구분"],
-        ["forwarder", "포워더"],
-        ["customer", "고객사"],
-        ["manager", "담당자"],
-        ["inv", "INV"],
-        ["vendorName", "업체명"],
-        ["moduleText", "부분품"],
-        ["locationText", "위치"]
-      ];
-      const header = columns.map(c => csvEscape(c[1])).join(",");
-      const body = (Array.isArray(rows) ? rows : []).map(row => columns.map(c => csvEscape(row[c[0]])).join(","));
-      return "\ufeff" + [header].concat(body).join("\r\n");
-    }
-
-    function downloadText(filename, content, mimeType) {
-      const blob = new Blob([content], { type: mimeType || "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    function makeHistoryCsvFilename(snapshot, rowCount) {
-      const uploadedAt = snapshot && (snapshot.uploaded_at || snapshot.created_at || "");
-      const p = getKstParts(uploadedAt);
-      const stamp = p ? `${p.year}${p.month}${p.day}_${p.hour}${p.minute}` : "unknown_date";
-      return `shipment_history_${stamp}_${rowCount || 0}rows.csv`;
-    }
-
-    async function downloadSnapshotCsv(snapshotId) {
-      const id = String(snapshotId || "").trim();
-      if (!id) return;
-      const payload = normalizeShipmentPayload(await apiRequest("/api/shipment-snapshots/" + encodeURIComponent(id), { method: "GET" }, true));
-      const rows = payload.data || [];
-      const snapshot = payload.meta && payload.meta.snapshot ? payload.meta.snapshot : { snapshot_id: id };
-      const csv = buildShipmentHistoryCsv(rows);
-      downloadText(makeHistoryCsvFilename(snapshot, rows.length), csv, "text/csv;charset=utf-8");
-    }
-
-    async function renderSnapshotView() {
-      snapshotEl.classList.remove("hidden");
-
-      if (!state.snapshotsLoaded) {
-        snapshotEl.innerHTML = '<div class="loading">업로드 이력 불러오는 중...</div>';
-        try {
-          await loadShipmentSnapshots(false);
-        } catch (err) {
-          snapshotEl.innerHTML = '<div class="empty">업로드 이력을 불러오지 못했습니다.<br>' + esc(err && err.message ? err.message : '오류') + '</div>';
-          return;
-        }
-      }
-
-      const currentSnapshotId = selectedSnapshot && selectedSnapshot.snapshot_id ? selectedSnapshot.snapshot_id : "";
-      const banner = state.dataMode === "snapshot" && selectedSnapshot
-        ? '<div class="snapshot-current-banner"><div>현재 업로드 이력 조회 중 · 업로드 일시: ' + esc(toKstFullDisplay(selectedSnapshot.uploaded_at || pageMeta.updatedAt || "")) + '</div><button class="snapshot-btn secondary" id="snapshotReturnCurrentBtn" type="button">최신 현황으로 돌아가기</button></div>'
-        : '';
-
-      const groups = groupShipmentSnapshotsByDate(snapshotList);
-      const listHtml = groups.length
-        ? '<div class="snapshot-list">' + groups.map(group => {
-            const cards = group.items.map(item => {
-              const sid = item.snapshot_id || "";
-              const active = sid && sid === currentSnapshotId;
-              const uploadedAt = item.uploaded_at || item.created_at || "";
-              const uploadedBy = item.uploaded_by_username || "-";
-              const itemCount = item.item_count == null ? "-" : String(item.item_count);
-              const targets = buildSnapshotTargetsText(item.uploaded_targets);
-              return '' +
-                '<article class="snapshot-card ' + (active ? 'active' : '') + '">' +
-                  '<div class="snapshot-card-head">' +
-                    '<div>' +
-                      '<div class="snapshot-card-title">' + esc(getHistoryTimeText(uploadedAt)) + ' 업로드' + (active ? ' · 현재 조회 중' : '') + '</div>' +
-                      '<div class="snapshot-card-meta">업로드 일시: ' + esc(toKstFullDisplay(uploadedAt)) + ' · 업로드자: ' + esc(uploadedBy) + ' · 건수: ' + esc(itemCount) + '건 · ID: ' + esc(sid) + '</div>' +
-                    '</div>' +
-                    '<div class="snapshot-actions">' +
-                      '<button class="snapshot-btn js-load-snapshot" data-snapshot-id="' + esc(sid) + '" type="button">' + (active ? '다시 불러오기' : '조회') + '</button>' +
-                      '<button class="snapshot-btn secondary js-download-snapshot" data-snapshot-id="' + esc(sid) + '" type="button">CSV 다운로드</button>' +
-                    '</div>' +
-                  '</div>' +
-                  '<div class="snapshot-card-targets">포함 대상: ' + esc(targets) + '</div>' +
-                '</article>';
-            }).join('');
-            return '<section class="snapshot-date-group"><div class="snapshot-date-title">' + esc(getHistoryDateTitle(group.dateKey)) + '</div>' + cards + '</section>';
-          }).join('') + '</div>'
-        : '<div class="empty">저장된 업로드 이력이 없습니다.</div>';
-
-      snapshotEl.innerHTML =
-        '<div class="snapshot-toolbar">' +
-          '<div>' +
-            '<div class="snapshot-title">이력 조회</div>' +
-            '<div class="snapshot-desc">업로드 일자별로 저장된 출하 데이터 이력입니다. 조회 시 상단에 업로드 일시가 표시됩니다.</div>' +
-          '</div>' +
-          '<div class="snapshot-actions">' +
-            '<button class="snapshot-btn secondary" id="snapshotRefreshBtn" type="button">목록 새로고침</button>' +
-            '<button class="snapshot-btn secondary" id="snapshotCurrentBtn" type="button">최신 현황</button>' +
-          '</div>' +
-        '</div>' +
-        banner +
-        listHtml;
-
-      const refreshBtn = $("snapshotRefreshBtn");
-      const currentBtn = $("snapshotCurrentBtn");
-      const bannerCurrentBtn = $("snapshotReturnCurrentBtn");
-
-      if (refreshBtn) refreshBtn.addEventListener("click", async () => {
-        state.snapshotsLoaded = false;
-        await loadShipmentSnapshots(true);
-        renderAll();
-      });
-
-      if (currentBtn) currentBtn.addEventListener("click", returnToCurrentShipments);
-      if (bannerCurrentBtn) bannerCurrentBtn.addEventListener("click", returnToCurrentShipments);
-
-      snapshotEl.querySelectorAll(".js-load-snapshot").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          try {
-            btn.disabled = true;
-            btn.textContent = "불러오는 중...";
-            await loadSnapshotData(btn.dataset.snapshotId);
-          } catch (err) {
-            alert(err && err.message ? err.message : "이력 조회 실패");
-            renderAll();
-          }
-        });
-      });
-
-      snapshotEl.querySelectorAll(".js-download-snapshot").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          try {
-            btn.disabled = true;
-            btn.textContent = "다운로드 중...";
-            await downloadSnapshotCsv(btn.dataset.snapshotId);
-            btn.textContent = "CSV 다운로드";
-            btn.disabled = false;
-          } catch (err) {
-            alert(err && err.message ? err.message : "CSV 다운로드 실패");
-            btn.textContent = "CSV 다운로드";
-            btn.disabled = false;
-          }
-        });
-      });
-    }
-
     function renderMainView(items) {
       const isCalendar = state.view === "calendar";
       const isReport = state.view === "report";
-      const isSnapshot = state.view === "snapshot";
 
-      listEl.classList.toggle("hidden", isCalendar || isReport || isSnapshot);
+      listEl.classList.toggle("hidden", isCalendar || isReport);
       reportEl.classList.toggle("hidden", !isReport);
-      snapshotEl.classList.toggle("hidden", !isSnapshot);
       calToolbar.classList.toggle("hidden", !isCalendar);
       calWrap.classList.toggle("hidden", !isCalendar);
 
-      if (!isCalendar) {
-        calEl.innerHTML = "";
-        calDayPanel.innerHTML = "";
-      }
-      if (!isReport) reportEl.innerHTML = "";
-      if (!isSnapshot) snapshotEl.innerHTML = "";
-
       if (isCalendar) renderCalendar(items);
       else if (isReport) renderReport(items);
-      else if (isSnapshot) renderSnapshotView();
       else renderList(items);
     }
 
@@ -1646,14 +1220,10 @@
         const role = user.role || "-";
         const lastLoginAt = user.last_login_at || user.lastLoginAt || "";
         const lastLoginIp = user.last_login_ip || user.lastLoginIp || "-";
+        const userId = user.id || "";
         const username = user.username || "";
-        const userId = user.id || user.user_id || user.userId || username || "";
-        const currentUserId = currentUser ? (currentUser.id || currentUser.user_id || currentUser.userId || currentUser.username || "") : "";
-        const isSelf = currentUser && String(currentUserId) === String(userId);
+        const isSelf = currentUser && String(currentUser.id) === String(userId);
         const selfProtectDisabled = isSelf ? ' disabled' : '';
-        const toggleAction = isActive ? 'disable' : 'enable';
-        const toggleClass = isActive ? 'disable' : 'reset';
-        const toggleText = isActive ? '사용 중지' : '사용 재개';
 
         parts.push('<tr>');
         parts.push('<td>' + esc(user.username || '-') + '</td>');
@@ -1664,7 +1234,7 @@
         parts.push('<td>' + esc(lastLoginIp) + '</td>');
         parts.push('<td><div class="admin-user-row-actions">' +
           '<button class="admin-user-action-btn reset js-admin-user-reset" data-user-id="' + esc(userId) + '" data-username="' + esc(username) + '" type="button">비밀번호 초기화</button>' +
-          '<button class="admin-user-action-btn ' + toggleClass + ' js-admin-user-toggle-active" data-action="' + toggleAction + '" data-user-id="' + esc(userId) + '" data-username="' + esc(username) + '" type="button"' + selfProtectDisabled + '>' + toggleText + '</button>' +
+          '<button class="admin-user-action-btn disable js-admin-user-disable" data-user-id="' + esc(userId) + '" data-username="' + esc(username) + '" type="button"' + selfProtectDisabled + '>사용 중지</button>' +
           '<button class="admin-user-action-btn delete js-admin-user-delete" data-user-id="' + esc(userId) + '" data-username="' + esc(username) + '" type="button"' + selfProtectDisabled + '>계정 삭제</button>' +
           '</div></td>');
         parts.push('</tr>');
@@ -1687,16 +1257,7 @@
     }
 
     async function handleAdminUserAction(action, userId, username) {
-      if (!userId) {
-        const msg = $('adminUserMsg');
-        if (msg) {
-          msg.style.color = '#b91c1c';
-          msg.textContent = '사용자 ID를 확인할 수 없습니다. 사용자 목록 API의 id/username 값을 확인하세요.';
-        } else {
-          alert('사용자 ID를 확인할 수 없습니다.');
-        }
-        return;
-      }
+      if (!userId) return;
 
       let path = '';
       let confirmMsg = '';
@@ -1706,9 +1267,6 @@
       } else if (action === 'disable') {
         path = '/api/admin/users/disable';
         confirmMsg = `${username} 계정을 사용 중지할까요?`;
-      } else if (action === 'enable') {
-        path = '/api/admin/users/enable';
-        confirmMsg = `${username} 계정을 다시 사용 상태로 변경할까요?`;
       } else if (action === 'delete') {
         path = '/api/admin/users/delete';
         confirmMsg = `${username} 계정을 삭제할까요? 이 작업은 되돌리기 어렵습니다.`;
@@ -1749,8 +1307,8 @@
       adminUserModalBody.querySelectorAll('.js-admin-user-reset').forEach(btn => {
         btn.addEventListener('click', () => handleAdminUserAction('reset', btn.dataset.userId, btn.dataset.username));
       });
-      adminUserModalBody.querySelectorAll('.js-admin-user-toggle-active').forEach(btn => {
-        btn.addEventListener('click', () => handleAdminUserAction(btn.dataset.action, btn.dataset.userId, btn.dataset.username));
+      adminUserModalBody.querySelectorAll('.js-admin-user-disable').forEach(btn => {
+        btn.addEventListener('click', () => handleAdminUserAction('disable', btn.dataset.userId, btn.dataset.username));
       });
       adminUserModalBody.querySelectorAll('.js-admin-user-delete').forEach(btn => {
         btn.addEventListener('click', () => handleAdminUserAction('delete', btn.dataset.userId, btn.dataset.username));
@@ -1882,113 +1440,6 @@
 
     async function loadAdminEmailLogs() {
       return await apiRequest('/api/admin/email-send-logs', { method: 'GET' }, true);
-    }
-
-    function noticeBodyPreview(body, maxLen) {
-      const text = String(body || "").trim();
-      if (!maxLen || text.length <= maxLen) return text;
-      return text.slice(0, maxLen) + "...";
-    }
-
-    async function loadPublicNotices() {
-      if (!publicNoticeList) return;
-      try {
-        const payload = await apiRequest('/api/notices/public?limit=3', { method: 'GET' }, false);
-        const items = Array.isArray(payload && payload.items) ? payload.items : [];
-        if (!items.length) {
-          publicNoticeList.innerHTML = '<div class="public-notice-item"><div class="public-notice-item-body">등록된 공지사항이 없습니다.</div></div>';
-          return;
-        }
-        publicNoticeList.innerHTML = items.map(item =>
-          '<div class="public-notice-item">' +
-          '<div class="public-notice-item-title">' + esc(item.title || '-') + '</div>' +
-          '<div class="public-notice-item-meta">' + esc(formatDateTime(item.created_at || item.createdAt || '')) + '</div>' +
-          '<div class="public-notice-item-body">' + esc(noticeBodyPreview(item.body || '', 120)) + '</div>' +
-          '</div>'
-        ).join('');
-      } catch (err) {
-        publicNoticeList.innerHTML = '<div class="public-notice-item"><div class="public-notice-item-body">공지사항을 불러오지 못했습니다.</div></div>';
-      }
-    }
-
-    async function loadNoticesForModal() {
-      return await apiRequest('/api/notices/public?limit=20', { method: 'GET' }, false);
-    }
-
-    function buildNoticeModalHtml(payload) {
-      const items = Array.isArray(payload && payload.items) ? payload.items : [];
-      const parts = ['<div class="notice-wrap">'];
-      if (isAdminUser()) {
-        parts.push('<section class="notice-admin-form">');
-        parts.push('<div class="notice-field"><label class="notice-label">제목</label><input id="noticeNewTitle" class="notice-input" type="text" placeholder="공지 제목"></div>');
-        parts.push('<div class="notice-field"><label class="notice-label">내용</label><textarea id="noticeNewBody" class="notice-textarea" placeholder="공지 내용을 입력하세요."></textarea></div>');
-        parts.push('<div class="notice-actions"><button id="noticeCreateBtn" class="notice-btn" type="button">공지 등록</button><button id="noticeRefreshBtn" class="notice-btn secondary" type="button">새로고침</button></div>');
-        parts.push('<div id="noticeMsg" class="notice-msg"></div>');
-        parts.push('</section>');
-      }
-      parts.push('<section class="notice-list">');
-      if (!items.length) {
-        parts.push('<div class="empty">등록된 공지사항이 없습니다.</div>');
-      } else {
-        items.forEach(item => {
-          parts.push('<article class="notice-card">');
-          parts.push('<div class="notice-card-title">' + esc(item.title || '-') + '</div>');
-          parts.push('<div class="notice-card-meta">' + esc(formatDateTime(item.created_at || item.createdAt || '')) + (item.author_username ? ' · ' + esc(item.author_username) : '') + '</div>');
-          parts.push('<div class="notice-card-body">' + esc(item.body || '') + '</div>');
-          parts.push('</article>');
-        });
-      }
-      parts.push('</section></div>');
-      return parts.join('');
-    }
-
-    function bindNoticeEvents() {
-      const createBtn = $('noticeCreateBtn');
-      const refreshBtn = $('noticeRefreshBtn');
-      if (refreshBtn) refreshBtn.addEventListener('click', openNoticeModal);
-      if (createBtn) createBtn.addEventListener('click', createNotice);
-    }
-
-    async function openNoticeModal() {
-      noticeModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      noticeModalBody.innerHTML = '<div class="loading">공지사항 불러오는 중...</div>';
-      try {
-        const payload = await loadNoticesForModal();
-        noticeModalBody.innerHTML = buildNoticeModalHtml(payload);
-        bindNoticeEvents();
-      } catch (err) {
-        noticeModalBody.innerHTML = '<div class="empty">공지사항을 불러오지 못했습니다.<br>' + esc(err && err.message ? err.message : '오류') + '</div>';
-      }
-    }
-
-    async function createNotice() {
-      const msg = $('noticeMsg');
-      const title = (($('noticeNewTitle') && $('noticeNewTitle').value) || '').trim();
-      const body = (($('noticeNewBody') && $('noticeNewBody').value) || '').trim();
-      if (msg) {
-        msg.style.color = '#b91c1c';
-        msg.textContent = '';
-      }
-      if (!title || !body) {
-        if (msg) msg.textContent = '제목과 내용을 입력하세요.';
-        return;
-      }
-      try {
-        const payload = await apiRequest('/api/admin/notices', {
-          method: 'POST',
-          withJson: true,
-          body: JSON.stringify({ title, body, is_active: 1 })
-        }, true);
-        if (msg) {
-          msg.style.color = '#15803d';
-          msg.textContent = payload && payload.message ? payload.message : '공지 등록 완료';
-        }
-        await loadPublicNotices();
-        await openNoticeModal();
-      } catch (err) {
-        if (msg) msg.textContent = err && err.message ? err.message : '공지 등록 실패';
-      }
     }
 
     function buildNotificationHtml(payload) {
@@ -2204,8 +1655,7 @@
           body: JSON.stringify({
             username,
             old_password: oldPassword,
-            new_password: newPassword,
-            new_password_confirm: newPasswordConfirm
+            new_password: newPassword
           })
         }, true);
 
@@ -2234,23 +1684,12 @@
       html += '<div class="user-menu-wrap">';
       html += '<button class="user-menu-toggle" id="userMenuToggle" type="button">' + esc(displayName + (isAdminUser() ? ' / ADMIN' : '')) + ' ▾</button>';
       html += '<div class="user-menu-panel hidden" id="userMenuPanel">';
-      html += '<div class="user-menu-group-title">내 계정</div>';
       html += '<button class="user-menu-item" id="menuChangePassword" type="button">비밀번호 변경</button>';
       html += '<button class="user-menu-item" id="menuMyNotify" type="button">내 알림 설정</button>';
-      html += '<div class="user-menu-divider"></div>';
-      html += '<div class="user-menu-group-title">출하 요청</div>';
-      html += '<button class="user-menu-item" id="menuNewShipmentRequest" type="button">신규 출하 요청</button>';
-      html += '<button class="user-menu-item" id="menuMyShipmentRequests" type="button">내 출하 요청</button>';
-      html += '<button class="user-menu-item" id="menuConfirmedShipments" type="button">확정 출하 조회</button>';
-      html += '<button class="user-menu-item" id="menuNotices" type="button">공지사항</button>';
       if (isAdminUser()) {
-        html += '<div class="user-menu-divider"></div>';
-        html += '<div class="user-menu-group-title">관리자</div>';
-        html += '<button class="user-menu-item" id="menuAdminRequests" type="button">승인 요청 관리</button>';
         html += '<button class="user-menu-item" id="menuAdminNotify" type="button">알림 현황</button>';
         html += '<button class="user-menu-item" id="menuAdminUsers" type="button">사용자 관리</button>';
         html += '<button class="user-menu-item" id="menuAdminIp" type="button">로그인 IP 현황</button>';
-        html += '<button class="user-menu-item" id="menuAdminChangeRequests" type="button">수정/삭제 요청 관리</button>';
       }
       html += '</div></div>';
       html += '<button class="logout-btn" id="logoutBtn" type="button">로그아웃</button>';
@@ -2261,15 +1700,9 @@
       const userMenuPanel = $('userMenuPanel');
       const menuChangePassword = $('menuChangePassword');
       const menuMyNotify = $('menuMyNotify');
-      const menuNotices = $('menuNotices');
-      const menuNewShipmentRequest = $('menuNewShipmentRequest');
-      const menuMyShipmentRequests = $('menuMyShipmentRequests');
-      const menuConfirmedShipments = $('menuConfirmedShipments');
-      const menuAdminRequests = $('menuAdminRequests');
       const menuAdminNotify = $('menuAdminNotify');
       const menuAdminUsers = $('menuAdminUsers');
       const menuAdminIp = $('menuAdminIp');
-      const menuAdminChangeRequests = document.getElementById('menuAdminChangeRequests');
 
       if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
@@ -2286,29 +1719,9 @@
 
       if (menuChangePassword) menuChangePassword.addEventListener('click', openPasswordChangeModal);
       if (menuMyNotify) menuMyNotify.addEventListener('click', openNotificationSettings);
-      if (menuNotices) menuNotices.addEventListener('click', openNoticeModal);
-      if (menuNewShipmentRequest) menuNewShipmentRequest.addEventListener('click', () => {
-        window.location.href = './app/request.html';
-      });
-      if (menuMyShipmentRequests) menuMyShipmentRequests.addEventListener('click', () => {
-        window.location.href = './app/my-requests.html';
-      });
-      if (menuConfirmedShipments) menuConfirmedShipments.addEventListener('click', () => {
-        window.location.href = './app/confirmed-shipments.html';
-      });
-      if (menuAdminRequests) menuAdminRequests.addEventListener('click', () => {
-        window.location.href = './app/admin-requests.html';
-      });
       if (menuAdminNotify) menuAdminNotify.addEventListener('click', openAdminNotificationManager);
       if (menuAdminUsers) menuAdminUsers.addEventListener('click', openAdminUserManager);
       if (menuAdminIp) menuAdminIp.addEventListener('click', openAdminIpSummary);
-      if (menuAdminRequests) menuAdminRequests.addEventListener('click', () => {
-        window.location.href = './app/admin-requests.html';
-      });
-      if (menuAdminChangeRequests) menuAdminChangeRequests.addEventListener('click', () => {
-        window.location.href = './app/change-requests.html';
-      });
-      if (menuAdminNotify) menuAdminNotify.addEventListener('click', openAdminNotificationManager);
     }
 
     function renderAll() {
@@ -2319,11 +1732,7 @@
       renderFilterTabs();
       renderPageMetaBar();
       state.listDate = pickInitialListDate(items, state.listDate);
-      const summaryLabel = state.dataMode === "snapshot" ? "이력 조회 건수" : "전체 예정 건수";
-      const summaryExtra = state.dataMode === "snapshot" && selectedSnapshot
-        ? `<div class="summary-label" style="margin-top:6px;">${esc(toKstFullDisplay(selectedSnapshot.uploaded_at || pageMeta.updatedAt || ""))}</div>`
-        : "";
-      summaryInlineEl.innerHTML = `<div class="summary-card"><div class="summary-label">${summaryLabel}</div><div class="summary-value">${items.length}</div>${summaryExtra}</div>`;
+      summaryInlineEl.innerHTML = `<div class="summary-card"><div class="summary-label">전체 예정 건수</div><div class="summary-value">${items.length}</div></div>`;
       summaryEl.innerHTML = '';
       toggleAdvancedFiltersBtn.textContent = state.advancedOpen ? '필터 닫기' : '필터 열기';
       advancedFiltersEl.classList.toggle('hidden', !state.advancedOpen);
@@ -2384,10 +1793,6 @@
     notificationModalBackdrop.addEventListener('click', closeNotificationModal);
     notificationModalClose.addEventListener('click', closeNotificationModal);
 
-    noticeModalBackdrop.addEventListener('click', closeNoticeModal);
-    noticeModalClose.addEventListener('click', closeNoticeModal);
-    if (publicNoticeMoreBtn) publicNoticeMoreBtn.addEventListener('click', openNoticeModal);
-
     adminNotificationModalBackdrop.addEventListener('click', closeAdminNotificationModal);
     adminNotificationModalClose.addEventListener('click', closeAdminNotificationModal);
 
@@ -2406,7 +1811,6 @@
         if (!adminUserModal.classList.contains('hidden')) closeAdminUserModal();
         if (!adminIpModal.classList.contains('hidden')) closeAdminIpModal();
         if (!adminNotificationModal.classList.contains('hidden')) closeAdminNotificationModal();
-        if (!noticeModal.classList.contains('hidden')) closeNoticeModal();
         if (!notificationModal.classList.contains('hidden')) closeNotificationModal();
         if (!detailModal.classList.contains('hidden')) closeDetailModal();
       }
@@ -2418,7 +1822,6 @@
     });
 
     (async () => {
-      await loadPublicNotices();
       const ok = await checkSession();
       if (ok) {
         try {
@@ -2434,5 +1837,3 @@
   </script>
 </body>
 </html>
-
-
